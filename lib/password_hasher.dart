@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'dart:typed_data';
-import 'package:argon2/argon2.dart' as Argon2;
+import 'package:argon2/argon2.dart';
 
 Future<String> argon2idHash({
   required String password,
@@ -8,19 +7,19 @@ Future<String> argon2idHash({
   int iterations = 3,
   int memoryCost = 65536,
   int parallelism = 1,
-  int hashLen = 32,
 }) async {
-  Uint8List rawSalt = Uint8List.fromList(utf8.encode(salt.padRight(16, '\x00')).take(16).toList());
-
-  final argon2Result = await Argon2.hashPasswordBytes(
-    Uint8List.fromList(utf8.encode(password)),
-    salt: rawSalt,
+  var byteSalt = salt.toBytesLatin1();
+  var parameters = Argon2Parameters(
+    Argon2Parameters.ARGON2_i,
+    byteSalt,
+    version: Argon2Parameters.ARGON2_VERSION_10,
     iterations: iterations,
-    memory: memoryCost,
-    parallelism: parallelism,
-    hashLength: hashLen,
-    type: Argon2Type.id,
+    memoryPowerOf2: memoryCost,
   );
-
-  return argon2Result.base64String;
+  var argon2 = Argon2BytesGenerator();
+  argon2.init(parameters);
+  var passwordBytes = parameters.converter.convert(password);
+  var result = Uint8List(32);
+  argon2.generateBytes(passwordBytes, result, 0, result.length);
+  return result.toHexString();
 }

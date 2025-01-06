@@ -203,7 +203,7 @@ class HomePage extends StatelessWidget {
   Future<void> _draw() async {
     String? _key;
     String? _user_id;
-    String? _errorMessage;
+    //String? _errorMessage;
 
     final prefs = await SharedPreferences.getInstance();
     _user_id = prefs.getString('user_id');
@@ -218,6 +218,7 @@ class HomePage extends StatelessWidget {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print(data); // Affiche les données reçues
       }
       //else {
       //  setState(() {
