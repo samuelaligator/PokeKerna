@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:argon2/argon2.dart';
+import 'package:argon2/argon2.dart' as Argon2;
 
 Future<String> argon2idHash({
   required String password,
