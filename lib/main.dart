@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'password_hasher.dart';
 import 'dart:convert';
 
 void main() {
@@ -65,11 +66,13 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     final username = _usernameController.text;
     final password = _passwordController.text;
+    String salt = "PokeFraiseZamFun";
+    String hashedPassword = await argon2idHash(password: password, salt: salt);
 
     try {
       final response = await http.post(
         Uri.parse('https://api.democraft.fr/v1/login'),
-        body: json.encode({'username': username, 'password': password}),
+        body: json.encode({'username': username, 'password': hashedPassword}),
         headers: {'Content-Type': 'application/json'},
       );
 
