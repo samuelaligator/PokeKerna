@@ -134,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _login(),
+              onPressed: _login,
               child: Text('Login'),
             ),
           ],
@@ -143,7 +143,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
 
 class NavigationBarPage extends StatefulWidget {
   @override
@@ -207,7 +206,8 @@ class HomePage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Expanded(
-            child: Center( // Centrer le Container
+            child: Center(
+              // Centrer le Container
               child: Image.asset(
                 'assets/images/booster.png', // Chemin de l'image
               ),
@@ -229,7 +229,7 @@ class BoosterButton extends StatefulWidget {
 }
 
 class _BoosterButtonState extends State<BoosterButton> {
-  int _secondsRemaining = 10;  // Timer initial à 10 secondes
+  int _secondsRemaining = 10; // Timer initial à 10 secondes
   Timer? _timer;
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
@@ -244,10 +244,10 @@ class _BoosterButtonState extends State<BoosterButton> {
   void initializeNotifications() {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    var initializationSettingsAndroid =
-    AndroidInitializationSettings('app_icon'); // Icône de notification Android
+    var initializationSettingsAndroid = AndroidInitializationSettings(
+        'app_icon'); // Icône de notification Android
     var initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
+        InitializationSettings(android: initializationSettingsAndroid);
 
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
@@ -280,10 +280,10 @@ class _BoosterButtonState extends State<BoosterButton> {
 
     await flutterLocalNotificationsPlugin.show(
       0, // ID de la notification
-      'Timer écoulé !',  // Titre
-      'Le booster est maintenant disponible !',  // Message
+      'Timer écoulé !', // Titre
+      'Le booster est maintenant disponible !', // Message
       platformDetails, // Détails de la plateforme
-      payload: 'Timer terminé',  // Facultatif: vous pouvez ajouter un payload
+      payload: 'Timer terminé', // Facultatif: vous pouvez ajouter un payload
     );
   }
 
@@ -300,9 +300,7 @@ class _BoosterButtonState extends State<BoosterButton> {
               backgroundColor: Colors.red,
             ),
           );
-        } else {
-
-        }
+        } else {}
       },
       label: Text(
         _secondsRemaining > 0
@@ -351,7 +349,7 @@ Future<void> saveTimestamp() async {
   }
 }
 
-void openBooster(){
+void openBooster() {
   final int timestamp = DateTime.now().millisecondsSinceEpoch;
   savePreference("last_booster_timestamp", timestamp);
   print("$timestamp");
@@ -367,7 +365,8 @@ Future<void> savePreference(String key, dynamic value) async {
       String: (key, value) => prefs.setString(key, value as String),
       bool: (key, value) => prefs.setBool(key, value as bool),
       double: (key, value) => prefs.setDouble(key, value as double),
-      List<String>: (key, value) => prefs.setStringList(key, value as List<String>),
+      List<String>: (key, value) =>
+          prefs.setStringList(key, value as List<String>),
     };
 
     // Vérifie si le type est supporté et appelle la méthode correspondante
