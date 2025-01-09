@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'password_hasher.dart';
 import 'dart:convert';
+import 'dart:async';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -133,7 +134,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _login,
+              onPressed: _login(),
               child: Text('Login'),
             ),
           ],
