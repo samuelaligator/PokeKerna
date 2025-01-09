@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,10 +63,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
         },
         destinations: [
           NavigationDestination(
-            icon: Badge(
-              label: Text('1'), // Nombre de notifications
-              child: Icon(Icons.home_outlined),
-            ),
+            icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Accueil',
           ),
@@ -89,23 +88,121 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Center( // Centrer le Container
-                child: Image.asset(
-                  'assets/images/booster.png', // Chemin de l'image
-                ),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Center( // Centrer le Container
+              child: Image.asset(
+                'assets/images/booster.png', // Chemin de l'image
               ),
             ),
-          ],
-        ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: (){;},
-        label: Text('Ouvrir le booster'),
-        icon: Icon(Icons.open_in_new),
+          ),
+          SizedBox(height: 20),
+          BoosterButton(),
+          SizedBox(height: 20),
+        ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+}
+
+class BoosterButton extends StatefulWidget {
+  @override
+  _BoosterButtonState createState() => _BoosterButtonState();
+}
+
+class _BoosterButtonState extends State<BoosterButton> {
+  int _secondsRemaining = 10;  // Timer initial à 10 secondes
+  Timer? _timer;
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeNotifications();
+    startTimer();
+  }
+
+  // Fonction pour initialiser les notifications
+  void initializeNotifications() {
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+    var initializationSettingsAndroid =
+    AndroidInitializationSettings('app_icon'); // Icône de notification Android
+    var initializationSettings =
+    InitializationSettings(android: initializationSettingsAndroid);
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  // Fonction pour démarrer le timer
+  void startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+        } else {
+          _timer?.cancel();
+          // Envoyer la notification quand le timer atteint 0
+          sendNotification();
+        }
+      });
+    });
+  }
+
+  // Fonction pour envoyer une notification
+  Future<void> sendNotification() async {
+    var androidDetails = AndroidNotificationDetails(
+      'channel_id',
+      'Timer Notifications',
+      channelDescription: 'Notifications lorsque le timer est écoulé',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    var platformDetails = NotificationDetails(android: androidDetails);
+
+    await flutterLocalNotificationsPlugin.show(
+      0, // ID de la notification
+      'Timer écoulé !',  // Titre
+      'Le booster est maintenant disponible !',  // Message
+      platformDetails, // Détails de la plateforme
+      payload: 'Timer terminé',  // Facultatif: vous pouvez ajouter un payload
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final defaultColor = Theme.of(context).colorScheme.primaryContainer;
+    return FloatingActionButton.extended(
+      onPressed: () {
+        // Si le timer n'est pas écoulé, afficher un message d'erreur
+        if (_secondsRemaining > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Attendez que le timer soit à zéro !"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+
+        }
+      },
+      label: Text(
+        _secondsRemaining > 0
+            ? 'Attendez $_secondsRemaining s'
+            : 'Ouvrir le booster',
+      ),
+      icon: Icon(
+        _secondsRemaining > 0 ? Icons.lock : Icons.open_in_new,
+      ),
+      backgroundColor: _secondsRemaining > 0 ? Colors.grey : defaultColor,
+    );
+  }
+
+  void openBooster() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Booster ouvert !')),
     );
   }
 }
@@ -135,5 +232,52 @@ class SettingsPage extends StatelessWidget {
         children: [],
       ),
     );
+  }
+}
+
+
+Future<void> saveTimestamp() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final int timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    // Sauvegarder le timestamp dans SharedPreferences
+    await prefs.setInt('saved_timestamp', timestamp);
+
+    print('Timestamp enregistré avec succès : $timestamp');
+  } catch (e) {
+    print('Erreur lors de l’enregistrement du timestamp : $e');
+  }
+}
+
+void openBooster(){
+  final int timestamp = DateTime.now().millisecondsSinceEpoch;
+  savePreference("last_booster_timestamp", timestamp);
+  print("$timestamp");
+}
+
+Future<void> savePreference(String key, dynamic value) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Map associant les types aux fonctions de sauvegarde
+    final Map<Type, Function> saveMethods = {
+      int: (key, value) => prefs.setInt(key, value as int),
+      String: (key, value) => prefs.setString(key, value as String),
+      bool: (key, value) => prefs.setBool(key, value as bool),
+      double: (key, value) => prefs.setDouble(key, value as double),
+      List<String>: (key, value) => prefs.setStringList(key, value as List<String>),
+    };
+
+    // Vérifie si le type est supporté et appelle la méthode correspondante
+    final saveMethod = saveMethods[value.runtimeType];
+    if (saveMethod != null) {
+      await saveMethod(key, value);
+      print('Préférence sauvegardée : $key = $value');
+    } else {
+      throw ArgumentError("Type de donnée non supporté : ${value.runtimeType}");
+    }
+  } catch (e) {
+    print('Erreur lors de la sauvegarde de la préférence $key : $e');
   }
 }
