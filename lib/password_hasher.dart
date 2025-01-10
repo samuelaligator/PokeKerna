@@ -1,25 +1,22 @@
-import 'dart:typed_data';
-import 'package:argon2/argon2.dart';
+import 'dart:convert';
+import 'package:cryptography/cryptography.dart';
 
-Future<String> argon2idHash({
+Future<String> hashPassword({
   required String password,
   required String salt,
-  int iterations = 3,
-  int memoryCost = 65536,
-  int parallelism = 1,
+  int iterations = 100000,
+  int keyLength = 32,
 }) async {
-  var byteSalt = salt.toBytesLatin1();
-  var parameters = Argon2Parameters(
-    Argon2Parameters.ARGON2_i,
-    byteSalt,
-    version: Argon2Parameters.ARGON2_VERSION_10,
+  final pbkdf2 = Pbkdf2(
+    macAlgorithm: Hmac(Sha256()),
     iterations: iterations,
-    //memoryPowerOf2: memoryCost,
+    bits: keyLength * 8,
   );
-  var argon2 = Argon2BytesGenerator();
-  argon2.init(parameters);
-  var passwordBytes = parameters.converter.convert(password);
-  var result = Uint8List(32);
-  argon2.generateBytes(passwordBytes, result, 0, result.length);
-  return result.toHexString();
+
+  final secretKey = await pbkdf2.deriveKey(
+    secretKey: SecretKey(utf8.encode(password)),
+    nonce: utf8.encode(salt),
+  );
+  
+  return secretKey;
 }
