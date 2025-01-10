@@ -18,5 +18,5 @@ Future<String> hashPassword({
     nonce: utf8.encode(salt),
   );
   
-  return secretKey;
+  return secretKey.toString();
 }

@@ -35,10 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.0.18
-  argon2: ^1.0.1
   http: ^1.0.0
   cryptography: ^2.7.0
-  cryptography_flutter: ^2.3.2
+  #cryptography_flutter: ^2.3.2
 
 dev_dependencies:
   flutter_test:

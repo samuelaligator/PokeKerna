@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
     final username = _usernameController.text;
     final password = _passwordController.text;
     String salt = "PokeFraiseZamFun";
-    String hashedPassword = await argon2idHash(password: password, salt: salt);
+    String hashedPassword = await hashPassword(password: password, salt: salt);
 
     try {
       final response = await http.post(
