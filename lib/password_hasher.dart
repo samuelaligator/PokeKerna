@@ -14,7 +14,7 @@ Future<String> argon2idHash({
     byteSalt,
     version: Argon2Parameters.ARGON2_VERSION_10,
     iterations: iterations,
-    memoryPowerOf2: memoryCost,
+    //memoryPowerOf2: memoryCost,
   );
   var argon2 = Argon2BytesGenerator();
   argon2.init(parameters);

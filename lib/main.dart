@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'password_hasher.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -22,7 +21,7 @@ class PokeKerna extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'PokéKerna',
+      title: 'PokeKerna',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.amberAccent),
@@ -231,26 +230,14 @@ class BoosterButton extends StatefulWidget {
 class _BoosterButtonState extends State<BoosterButton> {
   int _secondsRemaining = 10; // Timer initial à 10 secondes
   Timer? _timer;
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   @override
   void initState() {
     super.initState();
-    initializeNotifications();
     startTimer();
   }
 
-  // Fonction pour initialiser les notifications
-  void initializeNotifications() {
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    var initializationSettingsAndroid = AndroidInitializationSettings(
-        'app_icon'); // Icône de notification Android
-    var initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
 
   // Fonction pour démarrer le timer
   void startTimer() {
@@ -261,30 +248,9 @@ class _BoosterButtonState extends State<BoosterButton> {
         } else {
           _timer?.cancel();
           // Envoyer la notification quand le timer atteint 0
-          sendNotification();
         }
       });
     });
-  }
-
-  // Fonction pour envoyer une notification
-  Future<void> sendNotification() async {
-    var androidDetails = AndroidNotificationDetails(
-      'channel_id',
-      'Timer Notifications',
-      channelDescription: 'Notifications lorsque le timer est écoulé',
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-    var platformDetails = NotificationDetails(android: androidDetails);
-
-    await flutterLocalNotificationsPlugin.show(
-      0, // ID de la notification
-      'Timer écoulé !', // Titre
-      'Le booster est maintenant disponible !', // Message
-      platformDetails, // Détails de la plateforme
-      payload: 'Timer terminé', // Facultatif: vous pouvez ajouter un payload
-    );
   }
 
   @override
