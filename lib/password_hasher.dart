@@ -17,6 +17,10 @@ Future<String> hashPassword({
     secretKey: SecretKey(utf8.encode(password)),
     nonce: utf8.encode(salt),
   );
-  
-  return secretKey.toString();
+
+  // Extract the bytes of the derived key
+  final keyBytes = await secretKey.extractBytes();
+
+  // Convert the bytes to a Base64-encoded string
+  return base64Encode(keyBytes);
 }

@@ -19,8 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     final username = _usernameController.text;
     final password = _passwordController.text;
-    String salt = "PokeFraiseZamFun";
-    String hashedPassword = await hashPassword(password: password, salt: salt);
+    String hashedPassword = await hashPassword(password: password, salt: username);
 
     try {
       final response = await http.post(
