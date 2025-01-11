@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://api.democraft.fr/v1/login'),
+        Uri.parse('https://code.pokekerna.xyz/v1/login'),
         body: json.encode({'username': username, 'password': hashedPassword}),
         headers: {'Content-Type': 'application/json'},
       );
@@ -317,12 +317,13 @@ class _BoosterButtonState extends State<BoosterButton> {
 
   Future<void> openBooster() async {
     try {
-      final response =
-          await fetchWithHeaders("https://api.democraft.fr/v1/draw");
+      final response = await fetchWithHeaders("https://code.pokekerna.xyz/v1/draw");
       final int timestamp = DateTime.now().millisecondsSinceEpoch;
       final prefs = await SharedPreferences.getInstance();
-      print("Timestamp: " + timestamp.toString());
-      print("New Timestamp: " + (timestamp + 10800).toString());
+      //print("Timestamp: " + timestamp.toString());
+      //print("New Timestamp: " + (timestamp + 10800).toString());
+      print("OPENBOOSTER RESPONSE");
+      print(response);
       await prefs.setInt('next_booster', timestamp + 10800);
       Navigator.push(
           context,
@@ -349,7 +350,8 @@ class SearchPage extends StatelessWidget {
     try {
       ;
       final response =
-          await fetchWithHeaders("https://api.democraft.fr/v1/cards");
+          await fetchWithHeaders("https://code.pokekerna.xyz/v1/selfcards");
+      print("SELFCARDS RESPONSE");
       print(response);
       return response;
     } catch (e) {
@@ -575,7 +577,7 @@ class BoosterPage extends StatelessWidget {
               Text(
                 responseBody.isNotEmpty
                     ? jsonEncode(responseBody)
-                    : 'No data available.',
+                    : 'No data available. ${responseBody}',
                 style: TextStyle(fontSize: 16),
               ),
               FloatingActionButton.extended(

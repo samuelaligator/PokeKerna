@@ -33,6 +33,7 @@ Future<List<dynamic>> fetchWithHeaders(String url) async {
     // Handle response
     print('Response received with status code: ${response.statusCode}');
     if (response.statusCode == 200) {
+      print("test" + response.contentLength.toString());
       final List<dynamic> responseData = jsonDecode(response.body);
       print('Response body: ${responseData}');
       return responseData;
