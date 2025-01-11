@@ -24,6 +24,7 @@ class PokeKerna extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'PokeKerna',
       theme: ThemeData(
+        fontFamily: 'Outfit',
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.amberAccent),
       ),
@@ -109,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Login'), automaticallyImplyLeading: false),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -163,6 +164,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
         title: Image.asset(
           'assets/images/logo.png',
           height: 40,
@@ -229,13 +232,30 @@ class BoosterButton extends StatefulWidget {
 }
 
 class _BoosterButtonState extends State<BoosterButton> {
-  int _secondsRemaining = 5; // Timer initial à 10 secondes
+  int _secondsRemaining = 0; // Timer initial à 10 secondes
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
+    _initializeAsyncData();
     startTimer();
+  }
+
+  Future<void> _initializeAsyncData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final next = prefs.getInt('next_booster');
+    final int timestamp = DateTime.now().millisecondsSinceEpoch;
+    if (timestamp > next!) {
+      setState(() {
+        _secondsRemaining = 0; // Save the username
+      });
+    } else {
+      setState(() {
+        print("SecRemain: " + (next - timestamp).toString());
+        _secondsRemaining = next - timestamp; // Save the username
+      });
+    }
   }
 
   // Fonction pour démarrer le timer
@@ -250,6 +270,20 @@ class _BoosterButtonState extends State<BoosterButton> {
         }
       });
     });
+  }
+
+  String _formatTime(int totalSeconds) {
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return '${hours}h ${minutes}m ${seconds}s';
+    } else if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    } else {
+      return '${seconds}s';
+    }
   }
 
   @override
@@ -271,7 +305,7 @@ class _BoosterButtonState extends State<BoosterButton> {
       },
       label: Text(
         _secondsRemaining > 0
-            ? 'Attendez $_secondsRemaining s'
+            ? 'Attendez ${_formatTime(_secondsRemaining)}'
             : 'Ouvrir le booster',
       ),
       icon: Icon(
@@ -285,12 +319,16 @@ class _BoosterButtonState extends State<BoosterButton> {
     try {
       final response =
           await fetchWithHeaders("https://api.democraft.fr/v1/draw");
+      final int timestamp = DateTime.now().millisecondsSinceEpoch;
+      final prefs = await SharedPreferences.getInstance();
+      print("Timestamp: " + timestamp.toString());
+      print("New Timestamp: " + (timestamp + 10800).toString());
+      await prefs.setInt('next_booster', timestamp + 10800);
       Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BoosterPage(responseBody: response),
-        ),
-      );
+          context,
+          MaterialPageRoute(
+            builder: (context) => BoosterPage(responseBody: response),
+          ));
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -305,62 +343,103 @@ class _BoosterButtonState extends State<BoosterButton> {
 
 // Page Recherche avec plusieurs widgets
 class SearchPage extends StatelessWidget {
+  Future<dynamic>? _data;
+
+  Future<List<dynamic>> getAllCards(context) async {
+    try {
+      ;
+      final response =
+          await fetchWithHeaders("https://api.democraft.fr/v1/cards");
+      print(response);
+      return response;
+    } catch (e) {
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.orange[300],
+        ),
+      );
+      throw Exception("Da error");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [],
+      child: FutureBuilder<List<dynamic>>(
+        future: getAllCards(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No cards found'));
+          } else {
+            // Extract image URLs and card details
+            final List<dynamic> cards = snapshot.data!;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    '🃏 Toute mes cartes', // Title text
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16.0,
+                      mainAxisSpacing: 16.0,
+                      childAspectRatio: 0.735,
+                    ),
+                    itemCount: cards.length,
+                    itemBuilder: (context, index) {
+                      final card = cards[index];
+                      final imageUrl = card[6];
+
+                      return GestureDetector(
+                        onTap: () {
+                          // Navigate to the card detail page
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CardDetailPage(card: card),
+                            ),
+                          );
+                        },
+                        child: Card(
+                          elevation: 4.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              imageUrl,
+                              fit: BoxFit.contain, // Adjust fit as required
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
+        },
       ),
     );
-  }
-}
-
-Future<void> saveTimestamp() async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final int timestamp = DateTime.now().millisecondsSinceEpoch;
-
-    // Sauvegarder le timestamp dans SharedPreferences
-    await prefs.setInt('saved_timestamp', timestamp);
-
-    print('Timestamp enregistré avec succès : $timestamp');
-  } catch (e) {
-    print('Erreur lors de l’enregistrement du timestamp : $e');
-  }
-}
-
-void openBooster() {
-  final int timestamp = DateTime.now().millisecondsSinceEpoch;
-  savePreference("last_booster_timestamp", timestamp);
-  print("$timestamp");
-}
-
-Future<void> savePreference(String key, dynamic value) async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Map associant les types aux fonctions de sauvegarde
-    final Map<Type, Function> saveMethods = {
-      int: (key, value) => prefs.setInt(key, value as int),
-      String: (key, value) => prefs.setString(key, value as String),
-      bool: (key, value) => prefs.setBool(key, value as bool),
-      double: (key, value) => prefs.setDouble(key, value as double),
-      List<String>: (key, value) =>
-          prefs.setStringList(key, value as List<String>),
-    };
-
-    // Vérifie si le type est supporté et appelle la méthode correspondante
-    final saveMethod = saveMethods[value.runtimeType];
-    if (saveMethod != null) {
-      await saveMethod(key, value);
-      print('Préférence sauvegardée : $key = $value');
-    } else {
-      throw ArgumentError("Type de donnée non supporté : ${value.runtimeType}");
-    }
-  } catch (e) {
-    print('Erreur lors de la sauvegarde de la préférence $key : $e');
   }
 }
 
@@ -368,6 +447,11 @@ class SettingsPage extends StatelessWidget {
   Future<String?> _getUsername() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('username'); // Fetch the saved username
+  }
+
+  Future<void> _NoTimer() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('next_booster'); // Fetch the saved username
   }
 
   // Function to log out by clearing the SharedPreferences
@@ -399,23 +483,53 @@ class SettingsPage extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Welcome, ${snapshot.data}!',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                Center(
+                  child: Text(
+                    '👋 Salut ${snapshot.data} !',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
                 SizedBox(height: 20),
-                Text(
-                  'This is your account page.',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    'Voici ton espace compte :)',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
                 ),
+
                 SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => _logout(context), // Call logout function
-                  child: Text('Log Out'),
-                  style: ElevatedButton.styleFrom(
-                      // primary: Colors.red,
-                      ),
-                ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .spaceEvenly, // Adds space between the buttons
+                      children: [
+                        FloatingActionButton.extended(
+                          onPressed: () => _NoTimer(),
+                          label: Text('Kill da timer'),
+                          icon: Icon(Icons.bug_report),
+                          backgroundColor: Colors.orange,
+                        ),
+                        SizedBox(
+                            width:
+                                16), // Adds a little gap between the two buttons
+                        FloatingActionButton.extended(
+                          onPressed: () => _logout(context),
+                          label: Text('Déconnexion'),
+                          icon: Icon(Icons.logout),
+                          backgroundColor: Colors.red,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               ],
             );
           } else {
@@ -443,7 +557,10 @@ class BoosterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Response')),
+      appBar: AppBar(
+          title: Text('Response'),
+          automaticallyImplyLeading: false,
+          leading: null),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -475,6 +592,50 @@ class BoosterPage extends StatelessWidget {
               )
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class CardDetailPage extends StatelessWidget {
+  final dynamic card;
+
+  CardDetailPage({required this.card});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Card Details'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.network(
+                  card[6], // Card image
+                  width: 300, // Enlarge image
+                  height: 450, // Enlarge image
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Name: ${card[1]}',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text('Type: ${card[2]}'),
+            SizedBox(height: 10),
+            Text('Description: ${card[7]}'), // Example of additional data
+            // Add more data here if needed
+          ],
         ),
       ),
     );
