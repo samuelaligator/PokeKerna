@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'password_hasher.dart';
+import 'booster.dart';
 import 'dart:convert';
 import 'dart:async';
 
@@ -257,7 +258,7 @@ class _BoosterButtonState extends State<BoosterButton> {
   Widget build(BuildContext context) {
     final defaultColor = Theme.of(context).colorScheme.primaryContainer;
     return FloatingActionButton.extended(
-      onPressed: () {
+      onPressed: () async {
         // Si le timer n'est pas écoulé, afficher un message d'erreur
         if (_secondsRemaining > 0) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -266,7 +267,9 @@ class _BoosterButtonState extends State<BoosterButton> {
               backgroundColor: Colors.red,
             ),
           );
-        } else {}
+        } else {
+          openBooster();
+        }
       },
       label: Text(
         _secondsRemaining > 0
@@ -280,10 +283,23 @@ class _BoosterButtonState extends State<BoosterButton> {
     );
   }
 
-  void openBooster() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Booster ouvert !')),
-    );
+  Future<void> openBooster() async {
+    try {
+      final response = await fetchWithHeaders("https://api.democraft.fr/v1/draw");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResponsePage(responseBody: response.body),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.orange[300],
+        ),
+      );
+    }
   }
 }
 
@@ -414,6 +430,22 @@ class SettingsPage extends StatelessWidget {
                 ]);
           }
         },
+      ),
+    );
+  }
+}
+
+class ResponsePage extends StatelessWidget {
+  final String responseBody;
+
+  const ResponsePage({Key? key, required this.responseBody}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Response')),
+      body: Center(
+        child: Text(responseBody),
       ),
     );
   }
