@@ -229,7 +229,7 @@ class BoosterButton extends StatefulWidget {
 }
 
 class _BoosterButtonState extends State<BoosterButton> {
-  int _secondsRemaining = 10; // Timer initial à 10 secondes
+  int _secondsRemaining = 5; // Timer initial à 10 secondes
   Timer? _timer;
 
   @override
@@ -237,8 +237,6 @@ class _BoosterButtonState extends State<BoosterButton> {
     super.initState();
     startTimer();
   }
-
-
 
   // Fonction pour démarrer le timer
   void startTimer() {
@@ -285,17 +283,19 @@ class _BoosterButtonState extends State<BoosterButton> {
 
   Future<void> openBooster() async {
     try {
-      final response = await fetchWithHeaders("https://api.democraft.fr/v1/draw");
+      final response =
+          await fetchWithHeaders("https://api.democraft.fr/v1/draw");
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ResponsePage(responseBody: response.body),
+          builder: (context) => BoosterPage(responseBody: response),
         ),
       );
     } catch (e) {
+      final errorMessage = e.toString().replaceFirst('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString()),
+          content: Text(errorMessage),
           backgroundColor: Colors.orange[300],
         ),
       );
@@ -435,17 +435,47 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
-class ResponsePage extends StatelessWidget {
-  final String responseBody;
+class BoosterPage extends StatelessWidget {
+  final List<dynamic> responseBody;
 
-  const ResponsePage({Key? key, required this.responseBody}) : super(key: key);
+  const BoosterPage({Key? key, required this.responseBody}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Response')),
-      body: Center(
-        child: Text(responseBody),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Response Data:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Text(
+                responseBody.isNotEmpty
+                    ? jsonEncode(responseBody)
+                    : 'No data available.',
+                style: TextStyle(fontSize: 16),
+              ),
+              FloatingActionButton.extended(
+                label: Text("Retour à l'Accueil"),
+                icon: Icon(Icons.stars),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NavigationBarPage(),
+                    ),
+                  );
+                },
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
