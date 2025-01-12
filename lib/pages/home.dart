@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'booster.dart';
 import '../requests.dart';
+import '../main.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -48,7 +49,8 @@ class _BoosterButtonState extends State<BoosterButton> {
   Future<void> _initializeAsyncData() async {
     final prefs = await SharedPreferences.getInstance();
     final next = prefs.getInt('next_booster');
-    final int timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    final int timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).round();;
     if (timestamp > next!) {
       setState(() {
         _secondsRemaining = 0; // Save the username
@@ -58,6 +60,8 @@ class _BoosterButtonState extends State<BoosterButton> {
         _secondsRemaining = next - timestamp; // Save the username
       });
     }
+    print("NEXT " + next.toString());
+    print("NOW  " + timestamp.toString());
   }
 
   // Fonction pour démarrer le timer
@@ -120,9 +124,10 @@ class _BoosterButtonState extends State<BoosterButton> {
   Future<void> openBooster() async {
     try {
       final response = await fetchWithHeaders("https://code.pokekerna.xyz/v1/draw");
-      final int timestamp = DateTime.now().millisecondsSinceEpoch;
+      final int timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).round();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('next_booster', timestamp + 10800);
+      await scheduleTaskAtTimestamp();
       Navigator.push(
           context,
           MaterialPageRoute(

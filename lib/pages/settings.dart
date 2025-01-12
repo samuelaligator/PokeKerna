@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login.dart';
+import '../main.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -70,6 +71,8 @@ class _SettingsPageState extends State<SettingsPage> {
   void _handleInput(String input) {
     if (input == 'clickey') {
       _copyApiKeyToClipboard();
+    } else if(input == "notif") {
+      showNotification("Scheduled Task", "It's time for your task!");
     } else {
       _handleApiRequest();
     }
@@ -149,7 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           color: Colors.black,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
                       TextField(
                         controller: _controller,
                         decoration: InputDecoration(

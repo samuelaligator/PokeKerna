@@ -56,7 +56,7 @@ class CollectionPage extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 16.0,
                       mainAxisSpacing: 16.0,
-                      childAspectRatio: 0.735,
+                      childAspectRatio: 0.725,
                     ),
                     itemCount: cards.length,
                     itemBuilder: (context, index) {
