@@ -1,7 +1,7 @@
 name: 🎴 Compilation Web Flutter
 on:
   push:
-    branches: [ master ]
+    branches: [ prod ]
 
 jobs:
   build:
