@@ -3,7 +3,7 @@ name: 🪄 Compile Flutter
 on:
   push:
     branches:
-      - prod
+      - master
 
 jobs:
   build:
@@ -16,34 +16,20 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'latest'
-
+          channel: stable
+          flutter-version: 3.19.0
+          
       - name: Install dependencies
         run: |
           flutter pub get
 
-      - name: Build APK for Android
-        run: |
-          flutter build apk --release --no-shrink
-
-      - name: Build AppBundle for Android
-        run: |
-          flutter build appbundle --release
-
       - name: Build iOS App
         run: |
-          flutter build ios --release --no-codesign
-
-      - name: Upload Android build artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: android-builds
-          path: |
-            build/app/outputs/flutter-apk/*.apk
-            build/app/outputs/bundle/release/*.aab
+          flutter build ipa --release --no-codesign
 
       - name: Upload iOS build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ios-builds
-          path: build/ios/iphoneos/*.ipa
+          path: build/ios/*
+          #path: /Users/runner/work/PokeKerna/PokeKerna/build/ios/*
