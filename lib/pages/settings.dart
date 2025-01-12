@@ -67,12 +67,45 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  Future<void> _handleAdminGrant() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+    final key = prefs.getString('api_key');
+
+    if (userId == null || key == null) {
+      throw Exception('Missing user_id or key in shared preferences');
+    }
+
+    final headers = {
+      'User-Id': userId.toString(),
+      'Key': key,
+    };
+
+    final response = await http
+        .get(Uri.parse('https://code.pokekerna.xyz/admin'), headers: headers);
+
+    if (response.statusCode == 200) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+              builder: (context) => HomePage),
+        );
+    } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Secret codes are for masters.')),
+        );
+      }
+    
+  }
+
   // Method to handle input validation and action
   void _handleInput(String input) {
     if (input == 'clickey') {
       _copyApiKeyToClipboard();
-    } else if(input == "notif") {
+    } else if (input == "notif") {
       showNotification("Scheduled Task", "It's time for your task!");
+    } else if (input == "admn" {
+      _handleAdminGrant();
     } else {
       _handleApiRequest();
     }
