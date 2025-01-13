@@ -127,7 +127,7 @@ class _BoosterButtonState extends State<BoosterButton> {
       final int timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).round();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('next_booster', timestamp + 10800);
-      await scheduleTaskAtTimestamp();
+      await scheduleNotification();
       Navigator.push(
           context,
           MaterialPageRoute(

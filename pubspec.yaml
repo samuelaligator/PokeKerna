@@ -38,6 +38,7 @@ dependencies:
   http: ^1.0.0
   cryptography: ^2.7.0
   flutter_local_notifications: ^18.0.1
+  timezone: ^0.10.0
   #cryptography_flutter: ^2.3.2
 
 dev_dependencies:

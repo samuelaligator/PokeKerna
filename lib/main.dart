@@ -5,13 +5,18 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 import 'navigation.dart';
 import 'pages/login.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
   await initNotifications();
-  await scheduleTaskAtTimestamp();
+  //await scheduleTaskAtTimestamp();
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('Europe/Paris')); // Replace with your timezone
+
 
   runApp(PokeKerna());
 }
@@ -57,6 +62,32 @@ Future<void> scheduleTaskAtTimestamp() async {
       showNotification("Booster Disponible !", "It's time for your task!");
     }
   }
+}
+
+Future<void> scheduleNotification() async {
+  const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    'reminder_channel',
+    'Reminders',
+    channelDescription: 'Channel for 3-hour reminders',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
+
+  const NotificationDetails platformDetails = NotificationDetails(
+    android: androidDetails,
+  );
+
+  // Schedule the notification 3 hours from now
+  await flutterLocalNotificationsPlugin.zonedSchedule(
+    0,
+    'Reminder',
+    'It\'s time for your reminder!',
+    tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1)),
+    platformDetails,
+    androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+    uiLocalNotificationDateInterpretation:
+    UILocalNotificationDateInterpretation.absoluteTime,
+  );
 }
 
 // Show a notification
