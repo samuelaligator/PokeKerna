@@ -5,6 +5,16 @@ import 'dart:convert';
 Future<List<dynamic>> fetchWithHeaders(String url) async {
   try {
     final prefs = await SharedPreferences.getInstance();
+
+    final cachedData = prefs.getString('cached_response_${url}');
+    final lastFetch = prefs.getInt('last_fetch_time_${url}') ?? 0;
+
+    if (cachedData != null && DateTime.now().millisecondsSinceEpoch - lastFetch < 10000) {
+      print("Use cached data");
+      return jsonDecode(cachedData); // Use cached data
+    }
+
+
     final userId = prefs.getInt('user_id');
     final key = prefs.getString('api_key');
 
@@ -21,11 +31,15 @@ Future<List<dynamic>> fetchWithHeaders(String url) async {
 
     if (response.statusCode == 200) {
       final List<dynamic> responseData = jsonDecode(response.body);
+      await prefs.setString('cached_response_${url}', response.body);
+      await prefs.setInt('last_fetch_time_${url}', DateTime.now().millisecondsSinceEpoch);
       return responseData;
     } else if (response.statusCode == 418) {
       throw Exception('🔥 Boosters Désactivées.');
     } else if (response.statusCode == 429) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
+      await prefs.setString('cached_response', response.body);
+      await prefs.setInt('last_fetch_time', DateTime.now().millisecondsSinceEpoch);
       throw Exception('⌛ ${responseData['error']}');
     } else if (response.statusCode == 500) {
       throw Exception('💣 Super erreur du serveur. Réessayez plus tard !');
