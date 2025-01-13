@@ -9,7 +9,7 @@ Future<List<dynamic>> fetchWithHeaders(String url) async {
     final cachedData = prefs.getString('cached_response_${url}');
     final lastFetch = prefs.getInt('last_fetch_time_${url}') ?? 0;
 
-    if (cachedData != null && DateTime.now().millisecondsSinceEpoch - lastFetch < 10000) {
+    if (cachedData != null && DateTime.now().millisecondsSinceEpoch - lastFetch < 300000) {
       print("Use cached data");
       return jsonDecode(cachedData); // Use cached data
     }
