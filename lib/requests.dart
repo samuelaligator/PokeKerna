@@ -9,7 +9,9 @@ Future<List<dynamic>> fetchWithHeaders(String url) async {
     final cachedData = prefs.getString('cached_response_${url}');
     final lastFetch = prefs.getInt('last_fetch_time_${url}') ?? 0;
 
-    if (cachedData != null && DateTime.now().millisecondsSinceEpoch - lastFetch < 300000) {
+    bool isOffline = !(await _hasNetworkConnection());
+    
+    if (isOffline || (cachedData != null && DateTime.now().millisecondsSinceEpoch - lastFetch < 300000)) {
       print("Use cached data");
       return jsonDecode(cachedData); // Use cached data
     }
@@ -53,3 +55,12 @@ Future<List<dynamic>> fetchWithHeaders(String url) async {
     throw Exception(errorMessage);
   }
 }
+
+Future<bool> _hasNetworkConnection() async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
+  }
