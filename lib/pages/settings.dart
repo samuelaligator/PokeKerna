@@ -5,8 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login.dart';
+import 'home.dart';
 import '../main.dart';
-
 class SettingsPage extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -88,7 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-              builder: (context) => HomePage),
+              builder: (context) => HomePage()),
         );
     } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -104,8 +104,10 @@ class _SettingsPageState extends State<SettingsPage> {
       _copyApiKeyToClipboard();
     } else if (input == "notif") {
       showNotification("Scheduled Task", "It's time for your task!");
-    } else if (input == "admn" {
+    } else if (input == "admn") {
       _handleAdminGrant();
+    } else if (input == "tmr") {
+      _NoTimer();
     } else {
       _handleApiRequest();
     }
@@ -148,8 +150,9 @@ class _SettingsPageState extends State<SettingsPage> {
           } else if (snapshot.hasData && snapshot.data != null) {
             // Display the username when available
             return
-              Expanded(
-              child:  Column(
+              SingleChildScrollView(
+            child:
+              Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(

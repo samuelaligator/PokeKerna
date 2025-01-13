@@ -23,10 +23,13 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: null,
         centerTitle: true,
         title: Image.asset(
           'assets/images/logo.png',
           height: 40,
+
         ),
       ),
       body: _pages[_currentIndex], // Affiche la page correspondant à l'onglet

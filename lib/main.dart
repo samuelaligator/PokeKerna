@@ -80,9 +80,9 @@ Future<void> scheduleNotification() async {
   // Schedule the notification 3 hours from now
   await flutterLocalNotificationsPlugin.zonedSchedule(
     0,
-    'Reminder',
-    'It\'s time for your reminder!',
-    tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1)),
+    'Booster Disponible 🃏',
+    'Quelle prochaine carte allez vous avoir ?',
+    tz.TZDateTime.now(tz.local).add(const Duration(hours: 3)),
     platformDetails,
     androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     uiLocalNotificationDateInterpretation:
