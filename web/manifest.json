@@ -1,6 +1,6 @@
 {
-    "name": "pokekerna",
-    "short_name": "pokekerna",
+    "name": "PokéKerna",
+    "short_name": "PokéKerna",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
