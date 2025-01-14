@@ -1,4 +1,4 @@
-name: 🎴 Compilation Web Flutter
+name: 🌐 Flutter Web
 on:
   push:
     branches: [ prod ]
