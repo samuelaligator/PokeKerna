@@ -94,31 +94,48 @@ class _BoosterButtonState extends State<BoosterButton> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultColor = Theme.of(context).colorScheme.primaryContainer;
-    return FloatingActionButton.extended(
-      onPressed: () async {
-        // Si le timer n'est pas écoulé, afficher un message d'erreur
-        if (_secondsRemaining > 0) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Attendez que le timer soit à zéro !"),
-              backgroundColor: Colors.red,
-            ),
-          );
-        } else {
-          openBooster();
-        }
-      },
-      label: Text(
-        _secondsRemaining > 0
-            ? 'Attendez ${_formatTime(_secondsRemaining)}'
-            : 'Ouvrir le booster',
-      ),
-      icon: Icon(
-        _secondsRemaining > 0 ? Icons.lock : Icons.open_in_new,
-      ),
-      backgroundColor: _secondsRemaining > 0 ? Colors.grey : defaultColor,
-    );
+    final defaultColor = Theme
+        .of(context)
+        .colorScheme
+        .primaryContainer;
+    if (hasNetworkConnection == false) {
+      return FloatingActionButton.extended(
+          onPressed: () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Attendez que le timer soit à zéro !"),
+                  backgroundColor: Colors.red,
+                ),
+              );
+          },
+          label: Text('Ouvrir le booster'), icon: Icon(Icons.signal_wifi_connected_no_internet_4_rounded),
+          backgroundColor: Colors.grey
+      );
+    } else {
+      return FloatingActionButton.extended(
+        onPressed: () async {
+          if (_secondsRemaining > 0) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Attendez que le timer soit à zéro !"),
+                backgroundColor: Colors.red,
+              ),
+            );
+          } else {
+            openBooster();
+          }
+        },
+        label: Text(
+          _secondsRemaining > 0
+              ? 'Attendez ${_formatTime(_secondsRemaining)}'
+              : 'Ouvrir le booster',
+        ),
+        icon: Icon(
+          _secondsRemaining > 0 ? Icons.lock : Icons.open_in_new,
+        ),
+        backgroundColor: _secondsRemaining > 0 ? Colors.grey : defaultColor,
+      );
+    }
   }
 
   Future<void> openBooster() async {

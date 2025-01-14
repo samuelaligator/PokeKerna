@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pokekerna/navigation.dart';
 import 'package:pokekerna/pages/home.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class BoosterPage extends StatefulWidget {
   final List<dynamic> responseBody;
@@ -101,12 +102,12 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Image.network(
-                              widget.responseBody[0][6], // Card image URL
-                              width: 300,
-                              height: 420,
-                              fit: BoxFit.cover,
-                            ),
+                        CachedNetworkImage(
+                        imageUrl: widget.responseBody[0][6],
+                          placeholder: (context, url) => CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => Icon(Icons.error),
+                          fit: BoxFit.cover , // Adjust fit as required
+                        ),
                             // Add button when the card image is fully visible
                             if (_cardScaleAnimation.value == 1)
                               Padding(

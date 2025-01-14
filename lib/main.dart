@@ -13,10 +13,8 @@ void main() async {
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
   await initNotifications();
-  //await scheduleTaskAtTimestamp();
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Europe/Paris')); // Replace with your timezone
-
 
   runApp(PokeKerna());
 }

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokekerna/pages/booster.dart';
@@ -5,8 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'login.dart';
-import 'home.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../main.dart';
+import 'admin.dart';
+
 class SettingsPage extends StatefulWidget {
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -14,6 +18,28 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   TextEditingController _controller = TextEditingController();
+  String appName = '';
+  String packageName = '';
+  String version = '';
+  String buildNumber = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPackageInfo();
+  }
+
+  Future<void> _loadPackageInfo() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+
+    setState(() {
+      appName = packageInfo.appName;
+      packageName = packageInfo.packageName;
+      version = packageInfo.version;
+      buildNumber = packageInfo.buildNumber;
+    });
+  }
+
 
   // Method to copy api_key from SharedPreferences to clipboard
   Future<void> _copyApiKeyToClipboard() async {
@@ -28,7 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Method to handle API request and response
-  Future<void> _handleApiRequest() async {
+  Future<void> _handleApiRequest(String input) async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
     final key = prefs.getString('api_key');
@@ -43,12 +69,13 @@ class _SettingsPageState extends State<SettingsPage> {
     };
 
     final response = await http
-        .get(Uri.parse('https://code.pokekerna.xyz/v1/code'), headers: headers);
+        .get(Uri.parse('https://code.pokekerna.xyz/v1/code?code=${input}'), headers: headers);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      print(jsonResponse);
       if (jsonResponse.containsKey('type') && jsonResponse['type'] == 'card') {
-        List<dynamic> listResponse = jsonDecode(response.body);
+        List<dynamic> listResponse = jsonResponse['card'];
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -88,7 +115,7 @@ class _SettingsPageState extends State<SettingsPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-              builder: (context) => HomePage()),
+              builder: (context) => AdminPage()),
         );
     } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -109,7 +136,7 @@ class _SettingsPageState extends State<SettingsPage> {
     } else if (input == "tmr") {
       _NoTimer();
     } else {
-      _handleApiRequest();
+      _handleApiRequest(input);
     }
   }
 
@@ -210,18 +237,14 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
 
                       // Other UI elements can be above if needed
-                      Text(
-                        'App Version: 1.0.0', // Replace with your version info
-                        style: TextStyle(fontSize: 16, color: Colors.black),
-                      ),
-                      Text(
-                        'Build: DEBUG BETA 1', // Replace with build info (Beta, Debug, etc.)
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                      Text(
-                        'App ID: fr.zamuel.pokekerna', // Replace with your app's ID or other info
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
+                      _buildInfoRow(Icons.developer_mode_rounded, '${appName} v${version} - patch ${buildNumber}', 20, Colors.black),
+                      _buildInfoRow(Icons.folder_zip_rounded, packageName, 16, Colors.grey),
+                      _buildInfoRow(Icons.cloud_circle_rounded, 'Implémentation Prismarine', 16, Colors.lightBlue.shade200),
+
+                      /* ACTIVE CETTE OPTION ET DEGAGE LA MIENNE QUAND TU BUILD ZAM
+                      _buildInfoRow(Icons.lightbulb_circle_rounded, 'Implémentation Lightfrog', 16, Colors.red.shade400),
+                      */
+
                       SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -281,6 +304,21 @@ class _SettingsPageState extends State<SettingsPage> {
           }
         },
       ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text, double size, Color color) {
+    return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: size, color: color),
+          const SizedBox(width: 8), // Add space between icon and text
+          Text(
+            text,
+            style: TextStyle(fontSize: size, color: color),
+          ),
+        ],
+
     );
   }
 }
