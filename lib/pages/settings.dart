@@ -1,8 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pokekerna/pages/booster.dart';
+import 'package:pokekerna/pages/credit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,6 +9,7 @@ import 'login.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../main.dart';
 import 'admin.dart';
+import 'misc.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -135,6 +135,13 @@ class _SettingsPageState extends State<SettingsPage> {
       _handleAdminGrant();
     } else if (input == "tmr") {
       _NoTimer();
+    } else if (input == "credits"){
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CreditPage()
+        ), // Navigate to LoginPage
+      );
     } else {
       _handleApiRequest(input);
     }
@@ -237,9 +244,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
 
                       // Other UI elements can be above if needed
-                      _buildInfoRow(Icons.developer_mode_rounded, '${appName} v${version} - patch ${buildNumber}', 20, Colors.black),
-                      _buildInfoRow(Icons.folder_zip_rounded, packageName, 16, Colors.grey),
-                      _buildInfoRow(Icons.cloud_circle_rounded, 'Implémentation Prismarine', 16, Colors.lightBlue.shade200),
+                      InfoRow(icon: Icons.developer_mode_rounded, text: '${appName} v${version} - patch ${buildNumber}', size: 20),
+                      InfoRow(icon: Icons.folder_zip_rounded, text: packageName, size: 16, color: Colors.grey),
+                      InfoRow(icon: Icons.cloud_circle_rounded, text: 'Implémentation Prismarine', size: 16, color: Colors.lightBlue.shade200),
 
                       /* ACTIVE CETTE OPTION ET DEGAGE LA MIENNE QUAND TU BUILD ZAM
                       _buildInfoRow(Icons.lightbulb_circle_rounded, 'Implémentation Lightfrog', 16, Colors.red.shade400),
@@ -304,21 +311,6 @@ class _SettingsPageState extends State<SettingsPage> {
           }
         },
       ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String text, double size, Color color) {
-    return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: size, color: color),
-          const SizedBox(width: 8), // Add space between icon and text
-          Text(
-            text,
-            style: TextStyle(fontSize: size, color: color),
-          ),
-        ],
-
     );
   }
 }
