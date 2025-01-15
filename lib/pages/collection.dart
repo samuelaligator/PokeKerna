@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 import '../requests.dart';
+import '../cache.dart';
 import 'card.dart';
 
 class CollectionPage extends StatelessWidget {
@@ -84,6 +85,7 @@ class CollectionPage extends StatelessWidget {
                             child:
                             CachedNetworkImage(
                               imageUrl: imageUrl,
+                              cacheManager: CustomCacheManager.instance,
                               placeholder: (context, url) => CircularProgressIndicator(),
                               errorWidget: (context, url, error) => Icon(Icons.error),
                               fit: BoxFit.contain, // Adjust fit as required

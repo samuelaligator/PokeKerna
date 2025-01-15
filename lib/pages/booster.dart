@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pokekerna/navigation.dart';
-import 'package:pokekerna/pages/home.dart';
+import '../navigation.dart';
+import '../cache.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class BoosterPage extends StatefulWidget {
@@ -103,9 +103,12 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
                           mainAxisSize: MainAxisSize.min,
                           children: [
                         CachedNetworkImage(
+                          cacheManager: CustomCacheManager.instance,
                         imageUrl: widget.responseBody[0][6],
                           placeholder: (context, url) => CircularProgressIndicator(),
                           errorWidget: (context, url, error) => Icon(Icons.error),
+                          width: 300,
+                          height: 420,
                           fit: BoxFit.cover , // Adjust fit as required
                         ),
                             // Add button when the card image is fully visible
