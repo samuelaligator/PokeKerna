@@ -4,6 +4,7 @@ import 'package:pokekerna/pages/booster.dart';
 import 'package:pokekerna/pages/credit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'login.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -171,6 +172,30 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void openEmail(String email) async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: email,
+    );
+
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    } else {
+      throw 'Could not launch $emailUri';
+    }
+  }
+
+  void openBrowser(String url) async {
+    print(url);
+    final Uri uri = Uri.parse(url);
+    print(uri);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -259,7 +284,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Expanded(
                             child: Container(
                               child: FloatingActionButton.extended(
-                                onPressed: () => Clipboard.setData(ClipboardData(text: "https://pokekerna.xyz")),
+                                onPressed: () => openBrowser("https://pokekerna.xyz"),
                                 label: Text('Site Web'),
                                 icon: Icon(Icons.webhook_rounded),
                                 backgroundColor: Colors.amber[200],
@@ -270,7 +295,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Expanded(
                             child: Container(
                               child: FloatingActionButton.extended(
-                                onPressed: () => Clipboard.setData(ClipboardData(text: "contact@pokekerna.xyz")),
+                                onPressed: () => openEmail("contact@pokekerna.xyz"),
                                 label: Text('Contact'),
                                 icon: Icon(Icons.mail),
                                 backgroundColor: Colors.amber[200],

@@ -33,24 +33,25 @@ Widget UserProfileRow(
     Color textColor = Colors.black, // Default text color
     FontWeight fontWeight = FontWeight.normal, // Default font weight
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start}) {
-  return Row(
-    mainAxisAlignment: mainAxisAlignment,
-    children: [
-      SizedBox(height: 8.0),
-      if (picture != null)
-        CircleAvatar(
-            radius: pictureSize / 2, backgroundImage: AssetImage(picture)),
-      if (picture != null)
-        SizedBox(width: 8.0), // Spacing if profile picture exists
-      Text(
-        username,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: textColor,
-          fontWeight: fontWeight,
+  return Padding(
+    padding: EdgeInsets.all(10),
+    child: Row(
+      mainAxisAlignment: mainAxisAlignment,
+      children: [
+        if (picture != null)
+          CircleAvatar(
+              radius: pictureSize / 2, backgroundImage: AssetImage(picture)),
+        if (picture != null)
+          SizedBox(width: 8.0), // Spacing if profile picture exists
+        Text(
+          username,
+          style: TextStyle(
+            fontSize: fontSize,
+            color: textColor,
+            fontWeight: fontWeight,
+          ),
         ),
-      ),
-      SizedBox(height: 8.0),
-    ],
+      ],
+    ),
   );
 }
