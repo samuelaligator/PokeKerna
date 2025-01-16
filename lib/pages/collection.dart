@@ -6,11 +6,10 @@ import '../cache.dart';
 import 'card.dart';
 
 class CollectionPage extends StatelessWidget {
-
   Future<List<dynamic>> getAllCards(context) async {
     try {
-      final response = await fetchWithHeaders("https://code.pokekerna.xyz/v1/selfcards");
-      return response;
+      final response =
+          await fetchWithHeaders("https://code.pokekerna.xyz/v1/selfcards");
       return response as List<dynamic>;
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
@@ -27,7 +26,6 @@ class CollectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: FutureBuilder<List<dynamic>>(
@@ -80,22 +78,47 @@ class CollectionPage extends StatelessWidget {
                             ),
                           );
                         },
-                        child: Card(
-                          elevation: 4.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child:
-                            CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              cacheManager: CustomCacheManager.instance,
-                              placeholder: (context, url) => CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => Icon(Icons.error),
-                              fit: BoxFit.contain, // Adjust fit as required
-                            )
-                          ),
+                        child: Stack(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8.0),
+                                color: Colors.white,
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: CachedNetworkImage(
+                                  imageUrl: imageUrl,
+                                  cacheManager: CustomCacheManager.instance,
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
+                                  fit: BoxFit.contain, // Adjust fit as required
+                                ),
+                              ),
+                            ),
+                            if (numberOfCards > 1)
+                              Positioned(
+                                bottom: 8.0,
+                                right: 8.0,
+                                child: Container(
+                                  padding: EdgeInsets.all(4.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.redAccent,
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                  child: Text(
+                                    numberOfCards.toString(),
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       );
                     },
