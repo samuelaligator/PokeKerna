@@ -21,8 +21,8 @@ class _CollectionPageState extends State<CollectionPage> {
 
   Future<List<dynamic>> getAllCards(context) async {
     try {
-      final response =
-          await fetchWithHeaders("https://code.pokekerna.xyz/v1/selfcards");
+      final response = await fetchWithHeaders("https://code.pokekerna.xyz/v1/selfcards");
+      return response;
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -31,15 +31,17 @@ class _CollectionPageState extends State<CollectionPage> {
           backgroundColor: Colors.orange[300],
         ),
       );
-      throw Exception("Error fetching cards");
+      throw Exception("Da error");
     }
-    throw Exception("Da super error");
   }
 
-  Future<List<dynamic>> _fetchNumber() async {
+  Future<void> _fetchNumber() async {
     try {
       final response =
       await fetchWithHeaders("https://code.pokekerna.xyz/v1/allcards");
+      setState(() {
+        _number = response[0];
+      });
     } catch (e) {
       throw Exception("Error fetching cards");
     }
@@ -147,19 +149,32 @@ class _CollectionPageState extends State<CollectionPage> {
                   ),
                 ),
                 Center(
-                   child: Flex(
-                      direction: Axis.horizontal, // Can also be Axis.vertical
-                      mainAxisSize: MainAxisSize.min, // Prevents taking all space
-                      children: [
-                        Icon(
-                          Icons.book
+                   child:
+                      Container(
+                        padding: EdgeInsets.all(4.0),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(4.0),
                         ),
-                        Text(
-                          '${_number}',
+                        child: Flex(
+                        direction: Axis.horizontal, // Can also be Axis.vertical
+                        mainAxisSize: MainAxisSize.min, // Prevents taking all space
+                        children: [
+                          Icon(Icons.stars_rounded),
+                          Text(
+                          '${cards.length}/${_number}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12.0,
+                          ),
                         ),
-                      ],
+                        ],
+                      ),
+
                     )
                 ),
+                SizedBox(height: 8,)
               ],
             );
           }
