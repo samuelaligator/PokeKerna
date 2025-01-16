@@ -48,7 +48,7 @@ class _BoosterButtonState extends State<BoosterButton> {
 
   Future<void> _initializeAsyncData() async {
     final prefs = await SharedPreferences.getInstance();
-    final next = prefs.getInt('next_booster');
+    final next = prefs.getInt('next_booster') ?? 0;
 
     final int timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).round();;
     if (timestamp > next!) {
@@ -140,10 +140,12 @@ class _BoosterButtonState extends State<BoosterButton> {
 
   Future<void> openBooster() async {
     try {
-      final response = await fetchWithHeaders("https://code.pokekerna.xyz/v1/draw");
+      final url = "https://code.pokekerna.xyz/v1/draw"
+      final response = await fetchWithHeaders(url);
       final int timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).round();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('next_booster', timestamp + 10800);
+      await prefs.setInt('last_fetch_time_${url}', 0);
       await scheduleNotification();
       Navigator.push(
           context,
