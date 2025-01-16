@@ -5,12 +5,24 @@ import '../requests.dart';
 import '../cache.dart';
 import 'card.dart';
 
-class CollectionPage extends StatelessWidget {
+class CollectionPage extends StatefulWidget {
+  @override
+  _CollectionPageState createState() => _CollectionPageState();
+}
+
+class _CollectionPageState extends State<CollectionPage> {
+  int? _number;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNumber();
+  }
+
   Future<List<dynamic>> getAllCards(context) async {
     try {
       final response =
           await fetchWithHeaders("https://code.pokekerna.xyz/v1/selfcards");
-      return response as List<dynamic>;
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -19,6 +31,16 @@ class CollectionPage extends StatelessWidget {
           backgroundColor: Colors.orange[300],
         ),
       );
+      throw Exception("Error fetching cards");
+    }
+    throw Exception("Da super error");
+  }
+
+  Future<List<dynamic>> _fetchNumber() async {
+    try {
+      final response =
+      await fetchWithHeaders("https://code.pokekerna.xyz/v1/allcards");
+    } catch (e) {
       throw Exception("Error fetching cards");
     }
     throw Exception("Da super error");
@@ -123,6 +145,20 @@ class CollectionPage extends StatelessWidget {
                       );
                     },
                   ),
+                ),
+                Center(
+                   child: Flex(
+                      direction: Axis.horizontal, // Can also be Axis.vertical
+                      mainAxisSize: MainAxisSize.min, // Prevents taking all space
+                      children: [
+                        Icon(
+                          Icons.book
+                        ),
+                        Text(
+                          '${_number}',
+                        ),
+                      ],
+                    )
                 ),
               ],
             );
