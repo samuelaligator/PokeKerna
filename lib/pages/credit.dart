@@ -61,7 +61,7 @@ class CreditPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
-                  picture: "assets/profile/zam.png",
+                  picture: "assets/profile/elo.png",
                   username: 'Élodie',
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
@@ -99,7 +99,7 @@ class CreditPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
                   picture: "assets/profile/funa.png",
-                  username: 'Zamuel',
+                  username: 'Guilhem',
                   mainAxisAlignment: MainAxisAlignment.center),
               SizedBox(height: 48),
               InfoRow(
@@ -110,7 +110,7 @@ class CreditPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
                   picture: "assets/profile/funa.png",
-                  username: 'Zamuel',
+                  username: 'Guilhem',
                   mainAxisAlignment: MainAxisAlignment.center),
               SizedBox(height: 48),
               InfoRow(

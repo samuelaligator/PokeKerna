@@ -26,7 +26,7 @@ class _AdminPageState extends State<AdminPage> {
     if (_formKey1.currentState!.validate()) {
       String url = 'https://code.pokekerna.xyz/admin/verify?user_id=${_numberController1.text}';
       try {
-        List<dynamic> response = await fetchWithHeaders(url);
+        Map<String, dynamic> response = await fetchWithHeaders(url);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${response[0]} - Utilisateur ${response[1]} validé')),
         );
@@ -43,7 +43,7 @@ class _AdminPageState extends State<AdminPage> {
       String url =
           'https://code.pokekerna.xyz/admin/code?card_id=${_numberController2.text}&code=${_textController.text}';
       try {
-        List<dynamic> response = await fetchWithHeaders(url);
+        Map<String, dynamic> response = await fetchWithHeaders(url);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${response[0]}, Code ${response[2]} - Carte ${response[1]}')),
         );
@@ -62,7 +62,7 @@ class _AdminPageState extends State<AdminPage> {
         title: const Text('Admin God Page'),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

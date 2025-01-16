@@ -21,28 +21,83 @@ class CardDetailPage extends StatelessWidget {
             Center(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child:
-                  CachedNetworkImage(
-                  imageUrl: card[6],
+                child: CachedNetworkImage(
+                  imageUrl: card["image_link"],
                   cacheManager: CustomCacheManager.instance,
                   placeholder: (context, url) => CircularProgressIndicator(),
                   errorWidget: (context, url, error) => Icon(Icons.error),
                   fit: BoxFit.contain,
-                    width: 300,
-                    height: 450,
-                 ),
+                  width: 300,
+                  height: 450,
+                ),
               ),
             ),
             SizedBox(height: 20),
-            Text(
-              'Name: ${card[1]}',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Row(children: [
+              Image.asset(
+                'assets/icones/${card["energy"]}.png',
+                height: 38,
+              ),
+              Text(
+                card["name"],
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              if (card["alt"] != null)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4.0),
+                  padding: EdgeInsets.all(4.0),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  child: Text(
+                    card["alt"],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ),
+              if (card["num"] > 1)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4.0),
+                  padding: EdgeInsets.all(4.0),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  child: Text(
+                    card["num"].toString(),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ),
+            ]),
+            SizedBox(height: 10),
+            RichText(
+              textHeightBehavior: TextHeightBehavior(
+                applyHeightToFirstAscent: false, // Prevent extra spacing on the first line
+              ),
+              text: TextSpan(
+                children: [
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Icon(Icons.format_quote_rounded, size: 24),
+                    ),
+                  ),
+                  TextSpan(
+                    text: card["lore"],
+                    style: TextStyle(fontSize: 16, color: Colors.black, fontFamily: 'Outfit'),
+                  ),
+                ],
+              ),
             ),
-            SizedBox(height: 10),
-            Text('Type: ${card[2]}'),
-            SizedBox(height: 10),
-            Text('Description: ${card[7]}'), // Example of additional data
-            // Add more data here if needed
           ],
         ),
       ),

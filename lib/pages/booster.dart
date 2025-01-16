@@ -4,7 +4,7 @@ import '../cache.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class BoosterPage extends StatefulWidget {
-  final List<dynamic> responseBody;
+  final Map<String, dynamic> responseBody;
 
   const BoosterPage({Key? key, required this.responseBody}) : super(key: key);
 
@@ -104,7 +104,7 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
                           children: [
                         CachedNetworkImage(
                           cacheManager: CustomCacheManager.instance,
-                        imageUrl: widget.responseBody[0][6],
+                        imageUrl: widget.responseBody["image_link"],
                           placeholder: (context, url) => CircularProgressIndicator(),
                           errorWidget: (context, url, error) => Icon(Icons.error),
                           width: 300,

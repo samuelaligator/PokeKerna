@@ -6,10 +6,12 @@ import '../cache.dart';
 import 'card.dart';
 
 class CollectionPage extends StatelessWidget {
+
   Future<List<dynamic>> getAllCards(context) async {
     try {
       final response = await fetchWithHeaders("https://code.pokekerna.xyz/v1/selfcards");
       return response;
+      return response as List<dynamic>;
     } catch (e) {
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -18,12 +20,14 @@ class CollectionPage extends StatelessWidget {
           backgroundColor: Colors.orange[300],
         ),
       );
-      throw Exception("Da error");
+      throw Exception("Error fetching cards");
     }
+    throw Exception("Da super error");
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: FutureBuilder<List<dynamic>>(
@@ -63,7 +67,8 @@ class CollectionPage extends StatelessWidget {
                     itemCount: cards.length,
                     itemBuilder: (context, index) {
                       final card = cards[index];
-                      final imageUrl = card[6];
+                      final imageUrl = card["image_link"];
+                      final numberOfCards = card["num"];
 
                       return GestureDetector(
                         onTap: () {

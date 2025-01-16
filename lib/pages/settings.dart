@@ -32,7 +32,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadPackageInfo() async {
     final packageInfo = await PackageInfo.fromPlatform();
-
     setState(() {
       appName = packageInfo.appName;
       packageName = packageInfo.packageName;
@@ -41,8 +40,6 @@ class _SettingsPageState extends State<SettingsPage> {
     });
   }
 
-
-  // Method to copy api_key from SharedPreferences to clipboard
   Future<void> _copyApiKeyToClipboard() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? apiKey = prefs.getString('api_key');
@@ -54,7 +51,6 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  // Method to handle API request and response
   Future<void> _handleApiRequest(String input) async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('user_id');
@@ -76,11 +72,10 @@ class _SettingsPageState extends State<SettingsPage> {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       print(jsonResponse);
       if (jsonResponse.containsKey('type') && jsonResponse['type'] == 'card') {
-        List<dynamic> listResponse = jsonResponse['card'];
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => BoosterPage(responseBody: listResponse)),
+              builder: (context) => BoosterPage(responseBody: jsonResponse)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -126,12 +121,11 @@ class _SettingsPageState extends State<SettingsPage> {
     
   }
 
-  // Method to handle input validation and action
   void _handleInput(String input) {
     if (input == 'clickey') {
       _copyApiKeyToClipboard();
     } else if (input == "notif") {
-      showNotification("Scheduled Task", "It's time for your task!");
+      showNotification("🐛 Test des Notifications", "Alors ? Ça semble marcher non ?");
     } else if (input == "admn") {
       _handleAdminGrant();
     } else if (input == "tmr") {
@@ -199,7 +193,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: FutureBuilder<String?>(
         future: _getUsername(), // Fetch username asynchronously
         builder: (context, snapshot) {

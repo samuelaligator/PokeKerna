@@ -11,55 +11,23 @@ import 'package:timezone/timezone.dart' as tz;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-
   await initNotifications();
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Europe/Paris')); // Replace with your timezone
-
   runApp(PokeKerna());
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
-
 Future<void> initNotifications() async {
   flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
   const AndroidInitializationSettings initializationSettingsAndroid =
   AndroidInitializationSettings('@mipmap/ic_launcher');
-
   final InitializationSettings initializationSettings =
   InitializationSettings(
     android: initializationSettingsAndroid,
   );
-
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-}
-
-Future<void> scheduleTaskAtTimestamp() async {
-  print("SCHEDULE STARTED");
-  final prefs = await SharedPreferences.getInstance();
-  final storedTimestamp = prefs.getInt('next_booster');
-
-  if (storedTimestamp != null) {
-    print("DOING SATANISTS STUFF");
-    final targetTime = DateTime.fromMillisecondsSinceEpoch(storedTimestamp * 1000);
-    final now = DateTime.now();
-    print(targetTime);
-    print(now);
-
-    if (targetTime.isAfter(now)) {
-
-      final delay = targetTime.difference(now);
-
-      // Set up the Timer to execute the task after the delay
-      Timer(delay, () {
-        print("TIMER ENDED");
-        showNotification("Scheduled Task", "It's time for your task!");
-      });
-    } else {
-      showNotification("Booster Disponible !", "It's time for your task!");
-    }
-  }
 }
 
 Future<void> scheduleNotification() async {
@@ -70,12 +38,9 @@ Future<void> scheduleNotification() async {
     importance: Importance.max,
     priority: Priority.high,
   );
-
   const NotificationDetails platformDetails = NotificationDetails(
     android: androidDetails,
   );
-
-  // Schedule the notification 3 hours from now
   await flutterLocalNotificationsPlugin.zonedSchedule(
     0,
     'Booster Disponible 🃏',
@@ -88,7 +53,6 @@ Future<void> scheduleNotification() async {
   );
 }
 
-// Show a notification
 Future<void> showNotification(String title, String body) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
   AndroidNotificationDetails(
@@ -107,11 +71,6 @@ Future<void> showNotification(String title, String body) async {
     body,
     platformChannelSpecifics,
   );
-}
-
-// This function sends a notification when the app starts
-Future<void> showAppStartNotification() async {
-  showNotification('App Started', 'Welcome to PokeKerna!');
 }
 
 class PokeKerna extends StatelessWidget {
