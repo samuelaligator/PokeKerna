@@ -140,7 +140,7 @@ class _BoosterButtonState extends State<BoosterButton> {
 
   Future<void> openBooster() async {
     try {
-      final url = "https://code.pokekerna.xyz/v1/draw"
+      final url = "https://code.pokekerna.xyz/v1/draw";
       final response = await fetchWithHeaders(url);
       final int timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).round();
       final prefs = await SharedPreferences.getInstance();
