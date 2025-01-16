@@ -1,7 +1,7 @@
 name: 🌐 Flutter Web
 on:
   push:
-    branches: [ prod ]
+    branches: [ master ]
 
 jobs:
   build:
