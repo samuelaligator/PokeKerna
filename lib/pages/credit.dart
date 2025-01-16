@@ -40,7 +40,7 @@ class CreditPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
                   picture: "assets/profile/funa.png",
-                  username: 'Zamuel',
+                  username: 'Guilhem',
                   mainAxisAlignment: MainAxisAlignment.center),
               SizedBox(height: 48),
               InfoRow(
@@ -50,8 +50,8 @@ class CreditPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
-                  picture: "assets/profile/zam.png",
-                  username: 'Zamuel',
+                  picture: "assets/profile/elo.png",
+                  username: 'Élodie',
                   mainAxisAlignment: MainAxisAlignment.center),
               SizedBox(height: 48),
               InfoRow(
@@ -62,15 +62,14 @@ class CreditPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
                   picture: "assets/profile/zam.png",
-                  username: 'Zamuel',
+                  username: 'Élodie',
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
                   picture: "assets/profile/zam.png",
-                  username: 'Zamuel',
+                  username: 'Thomas',
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
-                  picture: "assets/profile/zam.png",
-                  username: 'Zamuel',
+                  username: '???',
                   mainAxisAlignment: MainAxisAlignment.center),
               SizedBox(height: 48),
               InfoRow(
@@ -81,11 +80,15 @@ class CreditPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
                   picture: "assets/profile/zam.png",
-                  username: 'Zamuel',
+                  username: 'Noah',
                   mainAxisAlignment: MainAxisAlignment.center),
               UserProfileRow(
                   picture: "assets/profile/zam.png",
-                  username: 'Zamuel',
+                  username: 'Léo',
+                  mainAxisAlignment: MainAxisAlignment.center),
+              UserProfileRow(
+                  picture: "assets/profile/zam.png",
+                  username: 'Timtonix',
                   mainAxisAlignment: MainAxisAlignment.center),
               SizedBox(height: 48),
               InfoRow(
