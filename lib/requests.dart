@@ -7,12 +7,12 @@ Future<List<dynamic>> fetchWithHeaders(String url) async {
   try {
     final prefs = await SharedPreferences.getInstance();
 
-    final cachedData = prefs.getString('cached_response_${url}');
+    final cachedData = prefs.getString('cached_response_${url}') ?? "null";
     final lastFetch = prefs.getInt('last_fetch_time_${url}') ?? 0;
 
     //bool isOffline = !(await hasNetworkConnection());
     
-    if (cachedData != null && DateTime.now().millisecondsSinceEpoch - lastFetch < 300000)) {
+    if (cachedData != "null" && DateTime.now().millisecondsSinceEpoch - lastFetch < 300000) {
       print("Use cached data");
       return jsonDecode(cachedData); // Use cached data
     }
