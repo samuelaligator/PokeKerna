@@ -36,8 +36,9 @@ class BoosterButton extends StatefulWidget {
 }
 
 class _BoosterButtonState extends State<BoosterButton> {
-  int _secondsRemaining = 0; // Timer initial à 10 secondes
+  int _secondsRemaining = 0;
   Timer? _timer;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -60,8 +61,6 @@ class _BoosterButtonState extends State<BoosterButton> {
         _secondsRemaining = next - timestamp; // Save the username
       });
     }
-    print("NEXT " + next.toString());
-    print("NOW  " + timestamp.toString());
   }
 
   // Fonction pour démarrer le timer
@@ -94,26 +93,26 @@ class _BoosterButtonState extends State<BoosterButton> {
 
   @override
   Widget build(BuildContext context) {
-    final defaultColor = Theme
-        .of(context)
-        .colorScheme
-        .primaryContainer;
+    final defaultColor = Theme.of(context).colorScheme.primaryContainer;
     if (hasNetworkConnection == false) {
       return FloatingActionButton.extended(
-          onPressed: () async {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Attendez que le timer soit à zéro !"),
-                  backgroundColor: Colors.red,
-                ),
-              );
-          },
-          label: Text('Ouvrir le booster'), icon: Icon(Icons.signal_wifi_connected_no_internet_4_rounded),
-          backgroundColor: Colors.grey
+        onPressed: () async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Attendez que le timer soit à zéro !"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        },
+        label: Text('Ouvrir le booster'),
+        icon: Icon(Icons.signal_wifi_connected_no_internet_4_rounded),
+        backgroundColor: Colors.grey,
       );
     } else {
       return FloatingActionButton.extended(
-        onPressed: () async {
+        onPressed: _isLoading
+            ? null
+            : () async {
           if (_secondsRemaining > 0) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -122,24 +121,37 @@ class _BoosterButtonState extends State<BoosterButton> {
               ),
             );
           } else {
-            openBooster();
+            await openBooster();
           }
         },
         label: Text(
           _secondsRemaining > 0
               ? 'Attendez ${_formatTime(_secondsRemaining)}'
+              : _isLoading
+              ? 'Chargement...'
               : 'Ouvrir le booster',
         ),
         icon: Icon(
-          _secondsRemaining > 0 ? Icons.lock : Icons.open_in_new,
+          _isLoading
+              ? Icons.refresh_rounded
+              : _secondsRemaining > 0
+              ? Icons.lock
+              : Icons.open_in_new,
         ),
-        backgroundColor: _secondsRemaining > 0 ? Colors.grey : defaultColor,
+        backgroundColor: _isLoading
+            ? Colors.grey
+            : _secondsRemaining > 0
+            ? Colors.grey
+            : defaultColor,
       );
     }
   }
 
   Future<void> openBooster() async {
     try {
+      setState(() {
+        _isLoading = true; // Set loading state to true
+      });
       final response = await fetchWithHeaders("https://code.pokekerna.xyz/v1/draw");
       final int timestamp = (DateTime.now().millisecondsSinceEpoch / 1000).round();
       final prefs = await SharedPreferences.getInstance();
@@ -147,11 +159,14 @@ class _BoosterButtonState extends State<BoosterButton> {
       await prefs.remove('cached_response_https://code.pokekerna.xyz/v1/selfcards');
       await scheduleNotification();
       Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BoosterPage(responseBody: response),
-          ));
+        context,
+        MaterialPageRoute(
+          builder: (context) => BoosterPage(responseBody: response),
+        ),
+      );
     } catch (e) {
+      _initializeAsyncData();
+      startTimer();
       final errorMessage = e.toString().replaceFirst('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -159,6 +174,12 @@ class _BoosterButtonState extends State<BoosterButton> {
           backgroundColor: Colors.orange[300],
         ),
       );
+    } finally {
+      _initializeAsyncData();
+      startTimer();
+      setState(() {
+        _isLoading = false; // Set loading state to false
+      });
     }
   }
 }

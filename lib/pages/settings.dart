@@ -71,7 +71,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      print(jsonResponse);
       if (jsonResponse.containsKey('type') && jsonResponse['type'] == 'card') {
         Navigator.push(
           context,
@@ -183,9 +182,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void openBrowser(String url) async {
-    print(url);
     final Uri uri = Uri.parse(url);
-    print(uri);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
