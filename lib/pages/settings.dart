@@ -149,7 +149,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _NoTimer() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('next_booster'); // Fetch the saved username
+    prefs.remove('next_booster');
+    prefs.remove('cached_response_https://code.pokekerna.xyz/v1/draw');// Fetch the saved username
   }
 
   // Function to log out by clearing the SharedPreferences
