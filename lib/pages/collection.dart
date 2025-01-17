@@ -81,7 +81,7 @@ class _CollectionPageState extends State<CollectionPage> {
                 Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2,
                       crossAxisSpacing: 16.0,
                       mainAxisSpacing: 16.0,
                       childAspectRatio: 0.725,
@@ -124,20 +124,20 @@ class _CollectionPageState extends State<CollectionPage> {
                             ),
                             if (numberOfCards > 1)
                               Positioned(
-                                bottom: 8.0,
-                                right: 8.0,
+                                bottom: 12.0,
+                                right: 12.0,
                                 child: Container(
-                                  padding: EdgeInsets.all(4.0),
+                                  padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.redAccent,
-                                    borderRadius: BorderRadius.circular(4.0),
+                                    color: Colors.amber.shade200,
+                                    borderRadius: BorderRadius.circular(6.0),
                                   ),
                                   child: Text(
-                                    numberOfCards.toString(),
+                                    "×" + numberOfCards.toString(),
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 12.0,
+                                      fontSize: 15.0,
                                     ),
                                   ),
                                 ),
@@ -151,20 +151,21 @@ class _CollectionPageState extends State<CollectionPage> {
                 Center(
                    child:
                       Container(
-                        padding: EdgeInsets.all(4.0),
+                        padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
                         decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(4.0),
+                          color: Colors.amber.shade200,
+                          borderRadius: BorderRadius.circular(6.0),
                         ),
                         child: Flex(
                         direction: Axis.horizontal, // Can also be Axis.vertical
                         mainAxisSize: MainAxisSize.min, // Prevents taking all space
                         children: [
                           Icon(Icons.stars_rounded),
+                          SizedBox(width: 4),
                           Text(
-                          '${cards.length}/${_number}',
+                          '${cards.length}/${_number} Cartes au Total',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: 12.0,
                           ),

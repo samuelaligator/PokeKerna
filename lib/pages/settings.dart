@@ -11,6 +11,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../main.dart';
 import 'admin.dart';
 import 'misc.dart';
+import '../requests.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -75,7 +76,7 @@ class _SettingsPageState extends State<SettingsPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => BoosterPage(responseBody: jsonResponse)),
+              builder: (context) => BoosterPage(responseBody: jsonResponse['card'])),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -156,6 +157,7 @@ class _SettingsPageState extends State<SettingsPage> {
   // Function to log out by clearing the SharedPreferences
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
+    await fetchWithHeaders("https://code.pokekerna.xyz/v1/logout");
     await prefs.remove('username'); // Remove username
     await prefs.remove('api_key'); // Use 'api_key' instead of 'apiKey'
 
@@ -247,7 +249,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         controller: _controller,
                         decoration: InputDecoration(
                           labelText: 'Entrez un code secret...',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0),),
+
                           //filled: true,
                           //fillColor: Colors.grey[200],
                         ),

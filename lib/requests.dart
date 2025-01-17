@@ -36,6 +36,11 @@ Future<dynamic> fetchWithHeaders(String url) async {
       return responseData;
     } else if (response.statusCode == 418) {
       throw Exception('🔥 Boosters Désactivées.');
+    } else if (response.statusCode == 499) {
+      final dynamic responseData = jsonDecode(response.body);
+      final int timestamp = responseData["timestamp"];
+      await prefs.setInt('next_booster', timestamp + 10800);
+      throw Exception('🔥 Timer non syncronisé...');
     } else if (response.statusCode == 429) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       await prefs.setString('cached_response', response.body);

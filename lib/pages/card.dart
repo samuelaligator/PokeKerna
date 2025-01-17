@@ -42,12 +42,13 @@ class CardDetailPage extends StatelessWidget {
                 card["name"],
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
+              SizedBox(width: 6),
               if (card["alt"] != null)
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.0),
-                  padding: EdgeInsets.all(4.0),
+                  margin: EdgeInsets.symmetric(horizontal: 6.0),
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.blue.shade800,
                     borderRadius: BorderRadius.circular(4.0),
                   ),
                   child: Text(
@@ -61,14 +62,14 @@ class CardDetailPage extends StatelessWidget {
                 ),
               if (card["num"] > 1)
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.0),
-                  padding: EdgeInsets.all(4.0),
+                  margin: EdgeInsets.symmetric(horizontal: 2.0),
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent,
+                    color: Colors.amber.shade200,
                     borderRadius: BorderRadius.circular(4.0),
                   ),
                   child: Text(
-                    card["num"].toString(),
+                    "×" + card["num"].toString(),
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
