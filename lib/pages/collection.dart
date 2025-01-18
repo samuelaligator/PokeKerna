@@ -81,7 +81,7 @@ class _CollectionPageState extends State<CollectionPage> {
                 Expanded(
                   child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 4 : 2,
+                      crossAxisCount: MediaQuery.of(context).orientation == Orientation.landscape ? 6 : 2,
                       crossAxisSpacing: 16.0,
                       mainAxisSpacing: 16.0,
                       childAspectRatio: 0.725,
