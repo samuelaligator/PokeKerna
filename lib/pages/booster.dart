@@ -19,6 +19,25 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
   late Animation<double> _cardScaleAnimation;
   bool _isOpened = false;
 
+  Color getBackgroundColor(int rarity) {
+    switch (rarity) {
+      case 0:
+        return Colors.grey.shade300;  // Common
+      case 1:
+        return Colors.lightBlue.shade200;  // Rare
+      case 2:
+        return Colors.red.shade200;  // Epic
+      case 3:
+        return Colors.yellow.shade200;  // Legendary
+      case 4:
+        return Colors.green.shade200;  // Mythic
+      case 5:
+        return Colors.purple.shade200;  // Secret
+      default:
+        return Colors.white;  // Default for unknown rarity
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -67,11 +86,7 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Booster Opening'),
-        automaticallyImplyLeading: false,
-        leading: null,
-      ),
+      backgroundColor: getBackgroundColor(widget.responseBody["rarity"]),
       body: Center(
         child: AnimatedBuilder(
           animation: _boosterController,
@@ -115,7 +130,74 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
                             if (_cardScaleAnimation.value == 1)
                               Padding(
                                 padding: const EdgeInsets.only(top: 20),
-                                child: FloatingActionButton.extended(
+                                child:
+                                Flex(
+                                  direction: Axis.vertical,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 6.0,
+                                  children: [
+                                  Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(widget.responseBody["name"], style: TextStyle(fontSize: 24),),
+                                    if (widget.responseBody["alt"] != null)
+                                      Container(
+                                        margin: EdgeInsets.symmetric(horizontal: 6.0),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 8.0, vertical: 4.0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.indigo,
+                                          borderRadius: BorderRadius.circular(4.0),
+                                        ),
+                                        child: Text(
+                                          widget.responseBody["alt"],
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        // Right section: Card rarity icon
+                                        Image.asset(
+                                          'assets/images/${widget.responseBody["rarity"]}.png', // Replace with your icon URL
+                                          width: 24,
+                                          height: 24,
+                                        ),
+                                        SizedBox(width: 6),
+                                        Text(
+                                          (() {
+                                            switch (widget.responseBody["rarity"]) {
+                                              case 0:
+                                                return "Commun";
+                                              case 1:
+                                                return "Rare";
+                                              case 2:
+                                                return "Epic";
+                                              case 3:
+                                                return "Légendaire";
+                                              case 4:
+                                                return "Mythique";
+                                              case 5:
+                                                return "Secret";
+                                              default:
+                                                return "Unknown";
+                                            }
+                                          })(),
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  SizedBox(height: 8),
+                                  FloatingActionButton.extended(
                                   onPressed: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -124,6 +206,8 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
                                   label: Text("Retour à l'accueil"),
                                   icon: Icon(Icons.home),
                                   backgroundColor: Colors.amber[200],
+                                ),
+                      ],
                                 ),
                               ),
                           ],

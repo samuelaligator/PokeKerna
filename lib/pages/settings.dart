@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:pokekerna/pages/booster.dart';
 import 'package:pokekerna/pages/credit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,11 +25,17 @@ class _SettingsPageState extends State<SettingsPage> {
   String packageName = '';
   String version = '';
   String buildNumber = '';
+  String latestVersion = '';
+  String latestVersionCommit = '';
+  String apkLink = '';
+  String ipaLink = '';
+  bool isUpdateAvailable = false;
 
   @override
   void initState() {
     super.initState();
     _loadPackageInfo();
+    _checkForUpdate();
   }
 
   Future<void> _loadPackageInfo() async {
@@ -39,6 +46,36 @@ class _SettingsPageState extends State<SettingsPage> {
       version = packageInfo.version;
       buildNumber = packageInfo.buildNumber;
     });
+  }
+
+  bool _isVersionOutdated(String currentVersion, String latestVersion) {
+    List<int> currentParts = currentVersion.split('.').map(int.parse).toList();
+    List<int> latestParts = latestVersion.split('.').map(int.parse).toList();
+
+    for (int i = 0; i < latestParts.length; i++) {
+      if (i >= currentParts.length || currentParts[i] < latestParts[i]) {
+        return true; // Update needed
+      } else if (currentParts[i] > latestParts[i]) {
+        return false; // No update needed
+      }
+    }
+    return false; // Versions are equal
+  }
+
+  Future<void> _checkForUpdate() async {
+    //final url = Uri.parse('https://pokekerna.xyz/app.json');
+    try {
+      final response = await fetchWithHeaders("https://pokekerna.xyz/app.json");
+      setState(() {
+        latestVersion = response['latest_version'];
+        apkLink = response['apk_link'];
+        ipaLink = response['ipa_link'];
+        latestVersionCommit = response['latest_commit'];
+        isUpdateAvailable = _isVersionOutdated(version, latestVersion);
+      });
+    } catch (e) {
+      print('Failed to fetch update info: $e');
+    }
   }
 
   Future<void> _copyApiKeyToClipboard() async {
@@ -66,8 +103,9 @@ class _SettingsPageState extends State<SettingsPage> {
       'Key': key,
     };
 
-    final response = await http
-        .get(Uri.parse('https://code.pokekerna.xyz/v1/code?code=${input}'), headers: headers);
+    final response = await http.get(
+        Uri.parse('https://code.pokekerna.xyz/v1/code?code=${input}'),
+        headers: headers);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -75,7 +113,8 @@ class _SettingsPageState extends State<SettingsPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => BoosterPage(responseBody: jsonResponse['card'])),
+              builder: (context) =>
+                  BoosterPage(responseBody: jsonResponse['card'])),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -110,32 +149,30 @@ class _SettingsPageState extends State<SettingsPage> {
     if (response.statusCode == 200) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-              builder: (context) => AdminPage()),
-        );
+        MaterialPageRoute(builder: (context) => AdminPage()),
+      );
     } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Secret codes are for masters.')),
-        );
-      }
-    
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Secret codes are for masters.')),
+      );
+    }
   }
 
   void _handleInput(String input) {
     if (input == 'clickey') {
       _copyApiKeyToClipboard();
     } else if (input == "notif") {
-      showNotification("🐛 Test des Notifications", "Alors ? Ça semble marcher non ?");
+      showNotification(
+          "🐛 Test des Notifications", "Alors ? Ça semble marcher non ?");
     } else if (input == "admn") {
       _handleAdminGrant();
     } else if (input == "tmr") {
       _NoTimer();
-    } else if (input == "credits"){
+    } else if (input == "credits") {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => CreditPage()
-        ), // Navigate to LoginPage
+            builder: (context) => CreditPage()), // Navigate to LoginPage
       );
     } else {
       _handleApiRequest(input);
@@ -150,7 +187,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _NoTimer() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('next_booster');
-    prefs.remove('cached_response_https://code.pokekerna.xyz/v1/draw');// Fetch the saved username
+    prefs.remove(
+        'cached_response_https://code.pokekerna.xyz/v1/draw'); // Fetch the saved username
   }
 
   // Function to log out by clearing the SharedPreferences
@@ -190,8 +228,19 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  void downloadAndInstall(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      print('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool isAndroid = defaultTargetPlatform == TargetPlatform.android;
+    bool isIOS = defaultTargetPlatform == TargetPlatform.iOS;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: FutureBuilder<String?>(
@@ -202,120 +251,194 @@ class _SettingsPageState extends State<SettingsPage> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData && snapshot.data != null) {
             // Display the username when available
-            return
-              SingleChildScrollView(
-            child:
-              Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Text(
-                    '👋 Salut ${snapshot.data} !',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+            return SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        '👋 Salut ${snapshot.data} !',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                //Clipboard.setData(ClipboardData(text: apiKey));
-                SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    'Voici ton espace compte :)',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Flex(
-                    direction: Axis.vertical,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "🔑 Codes",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      "📤 Mise à Jour",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                          labelText: 'Entrez un code secret...',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16.0),),
-
-                          //filled: true,
-                          //fillColor: Colors.grey[200],
-                        ),
-                        onSubmitted: _handleInput,
-                      ),
-                      SizedBox(height: 20),
-                      Text(
-                        "ℹ️ Informations",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-
-                      // Other UI elements can be above if needed
-                      InfoRow(icon: Icons.developer_mode_rounded, text: '${appName} v${version} - patch ${buildNumber}', size: 20),
-                      InfoRow(icon: Icons.folder_zip_rounded, text: packageName, size: 16, color: Colors.grey),
-                      InfoRow(icon: Icons.cloud_circle_rounded, text: 'Implémentation Prismarine', size: 16, color: Colors.lightBlue.shade200),
-
-                      /* ACTIVE CETTE OPTION ET DEGAGE LA MIENNE QUAND TU BUILD ZAM
-                      _buildInfoRow(Icons.lightbulb_circle_rounded, 'Implémentation Lightfrog', 16, Colors.red.shade400),
-                      */
-
-                      SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ),
+                    if (isUpdateAvailable)
+                      Flex(
+                        direction: Axis.vertical,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Container(
-                              child: FloatingActionButton.extended(
-                                onPressed: () => openBrowser("https://pokekerna.xyz"),
-                                label: Text('Site Web'),
-                                icon: Icon(Icons.webhook_rounded),
-                                backgroundColor: Colors.amber[200],
-                              ),
+                          Text(
+                            'Une nouvelle version ($latestVersion) est disponible !',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.indigo,
                             ),
                           ),
-                          SizedBox(width: 20),
-                          Expanded(
-                            child: Container(
-                              child: FloatingActionButton.extended(
-                                onPressed: () => openEmail("contact@pokekerna.xyz"),
-                                label: Text('Contact'),
-                                icon: Icon(Icons.mail),
-                                backgroundColor: Colors.amber[200],
-                              ),
+                          Text.rich(
+                            TextSpan(
+                              text: 'Note de mise à jour: ',
+                              children: [
+                                TextSpan(
+                                  text: latestVersionCommit,
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                              ],
                             ),
                           ),
+                          SizedBox(height: 10),
+                          if (isAndroid)
+                            Container(
+                              width: double
+                                  .infinity, // Makes the button take all available horizontal space
+                              child: FloatingActionButton.extended(
+                                onPressed: () => downloadAndInstall(apkLink),
+                                label: Text(
+                                  'Télécharger la mise à jour Android',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                icon: Icon(Icons.android_rounded,
+                                    color: Colors.white),
+                                backgroundColor: Colors.indigo,
+                              ),
+                            ),
+                          if (isIOS)
+                            Container(
+                              width: double
+                                  .infinity, // Makes the button take all available horizontal space
+                              child: FloatingActionButton.extended(
+                                onPressed: () => downloadAndInstall(ipaLink),
+                                label: Text(
+                                  'Télécharger la mise à jour IOS',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                icon: Icon(Icons.apple_rounded,
+                                    color: Colors.white),
+                                backgroundColor: Colors.indigo,
+                              ),
+                            ),
                         ],
                       ),
-
-                      SizedBox(height: 20),
-
-                      Container(
-                        width: double
-                            .infinity, // Makes the button take all available horizontal space
-                        child: FloatingActionButton.extended(
-                          onPressed: () => _logout(context),
-                          label: Text('Déconnexion'),
-                          icon: Icon(Icons.logout),
-                          backgroundColor: Colors.red,
+                    if (!isUpdateAvailable)
+                      Text(
+                        'Votre application est à jour !',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.green,
                         ),
                       ),
-                    ],
-                  ),
+                    SizedBox(height: 16),
+                    Flex(
+                      direction: Axis.vertical,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "🔑 Codes",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        TextField(
+                          controller: _controller,
+                          decoration: InputDecoration(
+                            labelText: 'Entrez un code secret...',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+
+                            //filled: true,
+                            //fillColor: Colors.grey[200],
+                          ),
+                          onSubmitted: _handleInput,
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          "ℹ️ Informations",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        InfoRow(
+                            icon: Icons.developer_mode_rounded,
+                            text:
+                                '${appName} v${version} - patch ${buildNumber}',
+                            size: 20),
+                        InfoRow(
+                            icon: Icons.folder_zip_rounded,
+                            text: packageName,
+                            size: 16,
+                            color: Colors.grey),
+                        InfoRow(
+                            icon: Icons.cloud_circle_rounded,
+                            text: 'Implémentation Prismarine',
+                            size: 16,
+                            color: Colors.lightBlue.shade200),
+                        SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Container(
+                                child: FloatingActionButton.extended(
+                                  onPressed: () =>
+                                      openBrowser("https://pokekerna.xyz"),
+                                  label: Text('Site Web'),
+                                  icon: Icon(Icons.webhook_rounded),
+                                  backgroundColor: Colors.amber[200],
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            Expanded(
+                              child: Container(
+                                child: FloatingActionButton.extended(
+                                  onPressed: () =>
+                                      openEmail("contact@pokekerna.xyz"),
+                                  label: Text('Contact'),
+                                  icon: Icon(Icons.mail),
+                                  backgroundColor: Colors.amber[200],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        SizedBox(height: 20),
+
+                        Container(
+                          width: double
+                              .infinity, // Makes the button take all available horizontal space
+                          child: FloatingActionButton.extended(
+                            onPressed: () => _logout(context),
+                            label: Text('Déconnexion'),
+                            icon: Icon(Icons.logout),
+                            backgroundColor: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
               ),
             );
           } else {

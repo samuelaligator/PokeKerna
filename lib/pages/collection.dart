@@ -90,6 +90,7 @@ class _CollectionPageState extends State<CollectionPage> {
                     itemBuilder: (context, index) {
                       final card = cards[index];
                       final imageUrl = card["image_link"];
+                      final rarity = card["rarity"];
                       final numberOfCards = card["num"];
 
                       return GestureDetector(
@@ -121,6 +122,15 @@ class _CollectionPageState extends State<CollectionPage> {
                                   fit: BoxFit.contain, // Adjust fit as required
                                 ),
                               ),
+                            ),
+                            Positioned(
+                              bottom: 12.0,
+                              left: 12.0,
+                              child: Image.asset(
+                              'assets/images/${rarity}.png', // Replace with your icon URL
+                              width: 26,
+                              height: 26,
+                            ),
                             ),
                             if (numberOfCards > 1)
                               Positioned(
