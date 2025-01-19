@@ -17,12 +17,13 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
   late AnimationController _cardController;
   late Animation<double> _boosterScaleAnimation;
   late Animation<double> _cardScaleAnimation;
+  late Animation<Color?> _backgroundColorAnimation;
   bool _isOpened = false;
 
   Color getBackgroundColor(int rarity) {
     switch (rarity) {
       case 0:
-        return Colors.grey.shade300;  // Common
+        return Colors.grey.shade400;  // Common
       case 1:
         return Colors.lightBlue.shade200;  // Rare
       case 2:
@@ -61,6 +62,14 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
     _cardScaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _cardController, curve: Curves.easeInOut),
     );
+
+    // Background color animation controller, now tied to the card animation
+    _backgroundColorAnimation = ColorTween(
+      begin: Colors.white,
+      end: getBackgroundColor(widget.responseBody["rarity"]),
+    ).animate(
+      CurvedAnimation(parent: _cardController, curve: Curves.easeInOut),
+    );
   }
 
   @override
@@ -86,139 +95,127 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: getBackgroundColor(widget.responseBody["rarity"]),
-      body: Center(
-        child: AnimatedBuilder(
-          animation: _boosterController,
-          builder: (context, child) {
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                // Booster image animation (scale down)
-                if (_boosterScaleAnimation.value > 0)
-                  GestureDetector(
-                    onTap: _startAnimation,
-                    child: Transform.scale(
-                      scale: _boosterScaleAnimation.value,
-                      child: Image.asset(
-                        'assets/images/booster.png', // Local pouch image
-                        width: 500,
-                        height: 600,
-                      ),
-                    ),
-                  ),
-                // Card image animation (scale from 0 to normal size)
-                if (_boosterScaleAnimation.value == 0)
-                  AnimatedBuilder(
-                    animation: _cardController,
-                    builder: (context, child) {
-                      return Transform.scale(
-                        scale: _cardScaleAnimation.value, // Scale up animation for card image
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                        CachedNetworkImage(
-                          cacheManager: CustomCacheManager.instance,
-                        imageUrl: widget.responseBody["image_link"],
-                          placeholder: (context, url) => CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => Icon(Icons.error),
-                          width: 300,
-                          height: 420,
-                          fit: BoxFit.cover , // Adjust fit as required
+      body: AnimatedBuilder(
+        animation: _backgroundColorAnimation,
+        builder: (context, child) {
+          return Container(
+            color: _backgroundColorAnimation.value,  // Dynamically update background color
+            child: Center(
+              child: AnimatedBuilder(
+                animation: _boosterController,
+                builder: (context, child) {
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Booster image animation (scale down)
+                      if (_boosterScaleAnimation.value > 0)
+                        GestureDetector(
+                          onTap: _startAnimation,
+                          child: Transform.scale(
+                            scale: _boosterScaleAnimation.value,
+                            child: Image.asset(
+                              'assets/images/booster.png', // Local pouch image
+                              width: 500,
+                              height: 600,
+                            ),
+                          ),
                         ),
-                            // Add button when the card image is fully visible
-                            if (_cardScaleAnimation.value == 1)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20),
-                                child:
-                                Flex(
-                                  direction: Axis.vertical,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  spacing: 6.0,
-                                  children: [
-                                  Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(widget.responseBody["name"], style: TextStyle(fontSize: 24),),
-                                    if (widget.responseBody["alt"] != null)
-                                      Container(
-                                        margin: EdgeInsets.symmetric(horizontal: 6.0),
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 8.0, vertical: 4.0),
-                                        decoration: BoxDecoration(
-                                          color: Colors.indigo,
-                                          borderRadius: BorderRadius.circular(4.0),
-                                        ),
-                                        child: Text(
-                                          widget.responseBody["alt"],
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                      // Card image animation (scale from 0 to normal size)
+                      if (_boosterScaleAnimation.value == 0)
+                        AnimatedBuilder(
+                          animation: _cardController,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _cardScaleAnimation.value, // Scale up animation for card image
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CachedNetworkImage(
+                                    cacheManager: CustomCacheManager.instance,
+                                    imageUrl: widget.responseBody["image_link"],
+                                    placeholder: (context, url) => CircularProgressIndicator(),
+                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                    width: 300,
+                                    height: 420,
+                                    fit: BoxFit.cover,
                                   ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        // Right section: Card rarity icon
-                                        Image.asset(
-                                          'assets/images/${widget.responseBody["rarity"]}.png', // Replace with your icon URL
-                                          width: 24,
-                                          height: 24,
-                                        ),
-                                        SizedBox(width: 6),
-                                        Text(
-                                          (() {
-                                            switch (widget.responseBody["rarity"]) {
-                                              case 0:
-                                                return "Commun";
-                                              case 1:
-                                                return "Rare";
-                                              case 2:
-                                                return "Epic";
-                                              case 3:
-                                                return "Légendaire";
-                                              case 4:
-                                                return "Mythique";
-                                              case 5:
-                                                return "Secret";
-                                              default:
-                                                return "Unknown";
-                                            }
-                                          })(),
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
+                                  // Add button when the card image is fully visible
+                                  if (_cardScaleAnimation.value == 1)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(widget.responseBody["name"], style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
+                                              if (widget.responseBody["alt"] != "")
+                                                Container(
+                                                  margin: EdgeInsets.symmetric(horizontal: 6.0),
+                                                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.indigo,
+                                                    borderRadius: BorderRadius.circular(4.0),
+                                                  ),
+                                                  child: Text(
+                                                    widget.responseBody["alt"],
+                                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 12.0),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
-                                        ),
-                                      ],
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                'assets/images/${widget.responseBody["rarity"]}.png', // Replace with your icon URL
+                                                width: 24,
+                                                height: 24,
+                                              ),
+                                              SizedBox(width: 6),
+                                              Text(
+                                                (() {
+                                                  switch (widget.responseBody["rarity"]) {
+                                                    case 0: return "Commun";
+                                                    case 1: return "Rare";
+                                                    case 2: return "Epic";
+                                                    case 3: return "Légendaire";
+                                                    case 4: return "Mythique";
+                                                    case 5: return "Secret";
+                                                    default: return "Unknown";
+                                                  }
+                                                })(),
+                                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 8),
+                                          FloatingActionButton.extended(
+                                            onPressed: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => NavigationBarPage(),
+                                              ),
+                                            ),
+                                            label: Text("Retour à l'accueil"),
+                                            icon: Icon(Icons.home),
+                                            backgroundColor: Colors.amber[200],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  SizedBox(height: 8),
-                                  FloatingActionButton.extended(
-                                  onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => NavigationBarPage(),
-                                      )),
-                                  label: Text("Retour à l'accueil"),
-                                  icon: Icon(Icons.home),
-                                  backgroundColor: Colors.amber[200],
-                                ),
-                      ],
-                                ),
+                                ],
                               ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-              ],
-            );
-          },
-        ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }

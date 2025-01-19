@@ -54,7 +54,7 @@ class CardDetailPage extends StatelessWidget {
                       SizedBox(width: 6),
 
                       // Card alt (if available)
-                      if (card["alt"] != null)
+                      if (card["alt"] != "")
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 6.0),
                           padding: EdgeInsets.symmetric(
