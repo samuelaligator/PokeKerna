@@ -5,6 +5,7 @@ import '../password_hasher.dart';
 import 'dart:convert';
 import 'dart:async';
 import '../navigation.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -56,6 +57,17 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void openRegisterBrowser() async {
+    final Uri uri = Uri.parse("https://code.pokekerna.xyz/compte");
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      setState(() {
+        _errorMessage = '${e}';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,10 +95,25 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _login,
-              child: Text('Login'),
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      FloatingActionButton.extended(
+        onPressed: _login,
+        label: Text("Connexion"),
+        icon: Icon(Icons.login),
+        backgroundColor: Colors.amber[200],
+      ),
+      SizedBox(width: 12),
+      FloatingActionButton.extended(
+        onPressed: openRegisterBrowser,
+        label: Text("Inscription"),
+        icon: Icon(Icons.supervised_user_circle_sharp),
+        backgroundColor: Colors.indigo,
+      ),
+
+    ],
+    ),
           ],
         ),
       ),

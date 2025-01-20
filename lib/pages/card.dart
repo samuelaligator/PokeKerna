@@ -9,6 +9,7 @@ class CardDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(card["alt"]);
     return Scaffold(
       appBar: AppBar(
         title: Text('🃏 Carte ${card["name"]}'),
@@ -54,7 +55,7 @@ class CardDetailPage extends StatelessWidget {
                       SizedBox(width: 6),
 
                       // Card alt (if available)
-                      if (card["alt"] != "")
+                      if (card["alt"] != "" && card["alt"] != null)
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 6.0),
                           padding: EdgeInsets.symmetric(

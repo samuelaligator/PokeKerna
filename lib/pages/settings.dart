@@ -211,20 +211,19 @@ class _SettingsPageState extends State<SettingsPage> {
       scheme: 'mailto',
       path: email,
     );
-
-    if (await canLaunchUrl(emailUri)) {
+    try {
       await launchUrl(emailUri);
-    } else {
-      throw 'Could not launch $emailUri';
+    } catch (e) {
+      throw '${e}';
     }
   }
 
   void openBrowser(String url) async {
     final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
+    } catch (e) {
+      throw '${e}';
     }
   }
 

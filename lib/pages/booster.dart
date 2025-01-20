@@ -149,7 +149,7 @@ class _BoosterPageState extends State<BoosterPage> with TickerProviderStateMixin
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               Text(widget.responseBody["name"], style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
-                                              if (widget.responseBody["alt"] != "")
+                                              if (widget.responseBody["alt"] != "" && widget.responseBody["alt"] != null)
                                                 Container(
                                                   margin: EdgeInsets.symmetric(horizontal: 6.0),
                                                   padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
