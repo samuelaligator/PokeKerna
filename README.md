@@ -1,16 +1,21 @@
-# pokekerna
+<p align="center">
+  <br/>
+  <img src="https://raw.githubusercontent.com/samuelaligator/PokeKerna/refs/heads/master/web/favicon.png#gh-light-mode-only" alt="Pokekerna's White Logo" width="100">
+  <img src="https://raw.githubusercontent.com/samuelaligator/PokeKerna/refs/heads/master/web/favicon.png#gh-dark-mode-only" alt="Pokekerna's Dark Logo" width="100">
+  <br/>
+  <h1 align="center">POKEKENRA</h1>
+</p>
 
-A new Flutter project.
 
-## Getting Started
+## ✏️ A propos du projet
 
-This project is a starting point for a Flutter application.
+Pokékerna est une reproduction de l'application DLC Pokémon, qui utilise sa propre API et donc ses propres cartes
 
-A few resources to get you started if this is your first Flutter project:
+## 🏗️ Mise en place
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Pour faire fonctionner l'application Pokékerna, il vous faura d'abord mettre en place une API qui fournisse les cartes et les comptes. *Documentation bientôt*.
+Ouvrez le projet sur fultter, et lancez le build par défaut. Les patchs sur les dépendances sont déjà configurés
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## ⚖️ Licence
+
+Pokékerna est sous licence GNU GPLv3. Nous ne sommes en aucun cas affilié à Pokémon.
